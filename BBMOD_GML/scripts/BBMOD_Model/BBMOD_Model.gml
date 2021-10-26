@@ -352,8 +352,7 @@ function BBMOD_Model(_file, _sha1)
 	/// @note Only parts of the model that use materials compatible with the
 	/// current render pass are submitted!
 	///
-	/// @see BBMOD_Material.RenderPass
-	/// @see global.bbmod_render_pass
+	/// @see RenderPasses.html
 	/// @see BBMOD_Material
 	/// @see BBMOD_AnimationPlayer.get_transform
 	/// @see bbmod_material_reset

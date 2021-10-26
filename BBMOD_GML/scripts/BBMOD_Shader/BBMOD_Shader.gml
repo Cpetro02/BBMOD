@@ -269,6 +269,7 @@ function BBMOD_Shader(_shader, _vertexFormat) constructor
 		}
 		shader_reset();
 		BBMOD_SHADER_CURRENT = BBMOD_NONE;
+		global.__bbmodRenderPassCurrent = -1;
 		return self;
 	};
 

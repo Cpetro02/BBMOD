@@ -103,16 +103,22 @@ function BBMOD_StaticBatch(_vformat)
 	};
 
 	/// @func submit(_material)
+	///
 	/// @desc Immediately submits the static batch for rendering.
+	///
 	/// @param {BBMOD_Material} _material A material.
+	///
 	/// @return {BBMOD_StaticBatch} Returns `self`.
+	///
 	/// @note The static batch is *not* submitted if the material used is not
 	/// compatible with the current render pass!
-	/// @see BBMOD_Material.RenderPass
-	/// @see global.bbmod_render_pass
+	///
+	/// @see RenderPasses.html
+	/// @see BBMOD_StaticBatch.render
+	/// @see BBMOD_Material
 	static submit = function (_material) {
 		gml_pragma("forceinline");
-		if ((_material.RenderPass & global.bbmod_render_pass) == 0)
+		if (!_material.has_shader(global.bbmod_render_pass))
 		{
 			return self;
 		}
@@ -125,6 +131,8 @@ function BBMOD_StaticBatch(_vformat)
 	/// @desc Enqueues the static batch for rendering.
 	/// @param {BBMOD_Material} _material A material.
 	/// @return {BBMOD_StaticBatch} Returns `self`.
+	/// @see BBMOD_StaticBatch.submit
+	/// @see BBMOD_Material
 	static render = function (_material) {
 		gml_pragma("forceinline");
 		var _renderCommand = new BBMOD_RenderCommand();

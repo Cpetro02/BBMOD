@@ -80,7 +80,7 @@ function BBMOD_Mesh(_vertexFormat)
 	/// @return {BBMOD_Mesh} Returns `self`.
 	/// @private
 	static submit = function (_material, _transform) {
-		if ((_material.RenderPass & global.bbmod_render_pass) == 0)
+		if (!_material.has_shader(global.bbmod_render_pass))
 		{
 			return self;
 		}

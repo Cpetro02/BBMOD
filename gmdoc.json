@@ -38,7 +38,8 @@
     "Advanced topics": {
       "file": "AdvancedTopics/AdvancedTopics.md",
       "pages": {
-        "Animation optimization levels": "AdvancedTopics/AnimationOptimizationLevels.md"
+        "Animation optimization levels": "AdvancedTopics/AnimationOptimizationLevels.md",
+        "Render passes": "AdvancedTopics/RenderPasses.md"
       }
     },
     "Modules": {

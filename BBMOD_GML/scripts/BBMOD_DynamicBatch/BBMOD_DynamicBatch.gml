@@ -65,21 +65,26 @@ function BBMOD_DynamicBatch(_model, _size)
 	};
 
 	/// @func submit(_material, _data)
+	///
 	/// @desc Immediately submits the dynamic batch for rendering.
+	///
 	/// @param {BBMOD_Material} _material A material. Must use a shader that
 	/// expects ids in the vertex format.
 	/// @param {real[]} _data An array containing data for each rendered instance.
+	///
 	/// @return {BBMOD_DynamicBatch} Returns `self`.
+	///
 	/// @note The dynamic batch is *not* submitted if the material used is not
 	/// compatible with the current render pass!
-	/// @see BBMOD_Material.RenderPass
-	/// @see global.bbmod_render_pass
+	///
+	/// @see RenderPasses.html
 	/// @see BBMOD_DynamicBatch.submit_object
 	/// @see BBMOD_DynamicBatch.render
 	/// @see BBMOD_DynamicBatch.render_object
+	/// @see BBMOD_Material
 	static submit = function (_material, _data) {
 		gml_pragma("forceinline");
-		if ((_material.RenderPass & global.bbmod_render_pass) == 0)
+		if (!_material.has_shader(global.bbmod_render_pass))
 		{
 			return self;
 		}
@@ -98,6 +103,7 @@ function BBMOD_DynamicBatch(_model, _size)
 	/// @see BBMOD_DynamicBatch.submit
 	/// @see BBMOD_DynamicBatch.submit_object
 	/// @see BBMOD_DynamicBatch.render_object
+	/// @see BBMOD_Material
 	static render = function (_material, _data) {
 		gml_pragma("forceinline");
 		var _renderCommand = new BBMOD_RenderCommand();
