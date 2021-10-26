@@ -87,7 +87,7 @@ function BBMOD_Mesh(_vertexFormat)
 		_material.apply();
 		if (_transform != undefined)
 		{
-			_material.Shader.set_bones(_transform);
+			BBMOD_SHADER_CURRENT.set_bones(_transform);
 		}
 		vertex_submit(VertexBuffer, pr_trianglelist, _material.BaseOpacity);
 		return self;

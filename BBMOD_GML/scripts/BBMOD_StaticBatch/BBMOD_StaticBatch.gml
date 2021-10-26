@@ -106,6 +106,10 @@ function BBMOD_StaticBatch(_vformat)
 	/// @desc Immediately submits the static batch for rendering.
 	/// @param {BBMOD_Material} _material A material.
 	/// @return {BBMOD_StaticBatch} Returns `self`.
+	/// @note The static batch is *not* submitted if the material used is not
+	/// compatible with the current render pass!
+	/// @see BBMOD_Material.RenderPass
+	/// @see global.bbmod_render_pass
 	static submit = function (_material) {
 		gml_pragma("forceinline");
 		if ((_material.RenderPass & global.bbmod_render_pass) == 0)

@@ -24,11 +24,14 @@
 /// @see BBMOD_DynamicBatch
 #macro BBMOD_MATERIAL_PBR_BATCHED __bbmod_material_pbr_batched()
 
-/// @func BBMOD_PBRMaterial(_shader)
+/// @func BBMOD_PBRMaterial([_shader])
 /// @extends BBMOD_Material
 /// @desc A PBR material using the metallic-rougness workflow.
-/// @param {BBMOD_Shader} _shader A shader that the material uses.
-function BBMOD_PBRMaterial(_shader)
+/// @param {BBMOD_Shader/undefined} [_shader] A shader that the material uses in
+/// the {@link BBMOD_RENDER_FORWARD} pass. Leave `undefined` if you would like
+/// to use {@link BBMOD_Material.set_shader} to specify shaders used in specific
+/// render passes.
+function BBMOD_PBRMaterial(_shader=undefined)
 	: BBMOD_Material(_shader) constructor
 {
 	static Super_Material = {
@@ -281,7 +284,7 @@ function BBMOD_PBRMaterial(_shader)
 	};
 
 	static clone = function () {
-		var _clone = new BBMOD_PBRMaterial(Shader);
+		var _clone = new BBMOD_PBRMaterial();
 		copy(_clone);
 		return _clone;
 	};

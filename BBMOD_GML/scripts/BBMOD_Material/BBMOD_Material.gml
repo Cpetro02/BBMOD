@@ -90,27 +90,35 @@ function bbmod_get_materials()
 	return _materials;
 }
 
-/// @func BBMOD_Material(_shader)
+/// @func BBMOD_Material([_shader])
 /// @extends BBMOD_Class
 /// @desc A material that can be used when rendering models.
-/// @param {BBMOD_Shader} _shader A shader that the material uses.
+/// @param {BBMOD_Shader/undefined} [_shader] A shader that the material uses in
+/// the {@link BBMOD_RENDER_FORWARD} pass. Leave `undefined` if you would like
+/// to use {@link BBMOD_Material.set_shader} to specify shaders used in specific
+/// render passes.
 /// @see BBMOD_Shader
-function BBMOD_Material(_shader)
+function BBMOD_Material(_shader=undefined)
 	: BBMOD_Class() constructor
 {
 	static Super_Class = {
 		destroy: destroy,
 	};
 
-	/// @var {uint} Passes in which is the material rendered. Defaults to
-	/// {@link BBMOD_RENDER_FORWARD}.
+	/// @var {uint} Bitwise `OR` between render passes in which is the material
+	/// rendered. Defaults to 0 (no passes).
+	/// @readonly
 	/// @see BBMOD_RENDER_DEFERRED
 	/// @see BBMOD_RENDER_FORWARD
 	/// @see BBMOD_RENDER_SHADOWS
-	RenderPass = BBMOD_RENDER_FORWARD;
+	RenderPass = 0;
 
-	/// @var {BBMOD_Shader} A shader that the material uses.
-	Shader = _shader;
+	/// @var {ds_map<uint, BBMOD_Shader>} Shaders used in specific render passes.
+	/// @private
+	/// @see BBMOD_Material.set_shader
+	/// @see BBMOD_Material.get_shader
+	/// @see global.bbmod_render_pass
+	Shaders = ds_map_create();
 
 	/// @var {real} The priority of the material. Determines order of materials in
 	/// the array retrieved by {@link bbmod_get_materials} (materials with smaller
@@ -186,6 +194,7 @@ function BBMOD_Material(_shader)
 	/// @return {BBMOD_Material} Returns `self`.
 	static copy = function (_dest) {
 		_dest.RenderPass = RenderPass;
+		ds_map_copy(_dest.Shaders, Shaders);
 		_dest.OnApply = OnApply;
 		_dest.BlendMode = BlendMode;
 		_dest.Culling = Culling;
@@ -224,7 +233,7 @@ function BBMOD_Material(_shader)
 	/// @desc Creates a clone of the material.
 	/// @return {BBMOD_Material} The created clone.
 	static clone = function () {
-		var _clone = new BBMOD_Material(Shader);
+		var _clone = new BBMOD_Material();
 		copy(_clone);
 		return _clone;
 	};
@@ -248,8 +257,9 @@ function BBMOD_Material(_shader)
 			gpu_set_tex_filter(Filtering);
 			gpu_set_tex_repeat(Repeat);
 
-			Shader.set();
-			Shader.set_material(self);
+			Shaders[? global.bbmod_render_pass]
+				.set()
+				.set_material(self);
 
 			global.__bbmodMaterialCurrent = self;
 		}
@@ -313,6 +323,41 @@ function BBMOD_Material(_shader)
 		return self;
 	};
 
+	/// @func set_shader(_pass, _shader)
+	/// @desc Defines a shader used in a specific render pass.
+	/// @param {uint} _pass The render pass.
+	/// @param {BBMOD_Shader} _shader The shader used in the render pass.
+	/// @return {BBMOD_Material} Returns `self`.
+	/// @note This also automatically updates the {@link BBMOD_Material.RenderPass}
+	/// property!
+	/// @see BBMOD_Material.get_shader
+	/// @see BBMOD_RENDER_DEFERRED
+	/// @see BBMOD_RENDER_FORWARD
+	/// @see BBMOD_RENDER_SHADOWS
+	static set_shader = function (_pass, _shader) {
+		gml_pragma("forceinline");
+		RenderPass |= _pass;
+		Shaders[? _pass] = _shader;
+		return self;
+	};
+
+	/// @func get_shader(_pass)
+	/// @desc Retrieves a shader used in a specific render pass.
+	/// @param {uint} _pass The render pass.
+	/// @return {BBMOD_Shader/undefined} The shader.
+	/// @see BBMOD_Material.set_shader
+	/// @see BBMOD_RENDER_DEFERRED
+	/// @see BBMOD_RENDER_FORWARD
+	/// @see BBMOD_RENDER_SHADOWS
+	static get_shader = function (_pass) {
+		gml_pragma("forceinline");
+		if ((RenderPass & _pass) == 0)
+		{
+			return undefined;
+		}
+		return Shaders[? _pass];
+	};
+
 	/// @func reset()
 	/// @desc Resets the current material to {@link BBMOD_NONE}.
 	/// @return {BBMOD_Material} Returns `self`.
@@ -355,13 +400,13 @@ function BBMOD_Material(_shader)
 			var _transform = _command.BoneTransform;
 			if (_transform != undefined)
 			{
-				Shader.set_bones(_transform);
+				BBMOD_SHADER_CURRENT.set_bones(_transform);
 			}
 
 			var _data = _command.BatchData;
 			if (_data != undefined)
 			{
-				Shader.set_batch_data(_data);
+				BBMOD_SHADER_CURRENT.set_batch_data(_data);
 			}
 
 			vertex_submit(_command.VertexBuffer, pr_trianglelist, _command.Texture);
@@ -372,6 +417,7 @@ function BBMOD_Material(_shader)
 	static destroy = function () {
 		method(self, Super_Class.destroy)();
 
+		ds_map_destroy(Shaders);
 		ds_list_destroy(RenderCommands);
 
 		if (BaseOpacitySprite != undefined)
@@ -392,6 +438,11 @@ function BBMOD_Material(_shader)
 			++i;
 		}
 	};
+
+	if (_shader != undefined)
+	{
+		set_shader(BBMOD_RENDER_FORWARD, _shader);
+	}
 
 	var _allMaterials = bbmod_get_materials();
 	array_push(_allMaterials, self);

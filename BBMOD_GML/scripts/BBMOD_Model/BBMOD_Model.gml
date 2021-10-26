@@ -328,13 +328,17 @@ function BBMOD_Model(_file, _sha1)
 	};
 
 	/// @func submit([_materials[, _transform]])
+	///
 	/// @desc Immediately submits the model for rendering.
+	///
 	/// @param {BBMOD_Material[]/undefined} [_materials] An array of materials,
 	/// one for each material slot of the model. If not specified, then
 	/// {@link BBMOD_Model.Materials} is used. Defaults to `undefined`.
 	/// @param {real[]/undefined} [_transform] An array of transformation matrices
 	/// (for animated models) or `undefined`.
+	///
 	/// @return {BBMOD_Model} Returns `self`.
+	///
 	/// @example
 	/// ```gml
 	/// bbmod_material_reset();
@@ -344,6 +348,12 @@ function BBMOD_Model(_file, _sha1)
 	/// modCharacter.submit([mat_head, mat_body], animationPlayer.get_transform());
 	/// bbmod_material_reset();
 	/// ```
+	///
+	/// @note Only parts of the model that use materials compatible with the
+	/// current render pass are submitted!
+	///
+	/// @see BBMOD_Material.RenderPass
+	/// @see global.bbmod_render_pass
 	/// @see BBMOD_Material
 	/// @see BBMOD_AnimationPlayer.get_transform
 	/// @see bbmod_material_reset
