@@ -73,8 +73,6 @@ global.__bbmodMaterialCurrent = BBMOD_NONE;
 /// @see RenderPasses.html
 global.bbmod_render_pass = BBMOD_RENDER_FORWARD;
 
-global.__bbmodRenderPassCurrent = -1;
-
 /// @func bbmod_get_materials()
 /// @desc Retrieves an array of all existing materials, sorted by their priority.
 /// Materials with smaller priority come first in the array.
@@ -236,8 +234,6 @@ function BBMOD_Material(_shader=undefined)
 	/// @return {BBMOD_Material} Returns `self`.
 	/// @see BBMOD_Material.reset
 	static apply = function () {
-		var _setShader = (global.__bbmodRenderPassCurrent != global.bbmod_render_pass);
-
 		if (global.__bbmodMaterialCurrent != self)
 		{
 			reset();
@@ -250,14 +246,17 @@ function BBMOD_Material(_shader=undefined)
 			gpu_set_tex_mip_enable(Mipmapping ? mip_on : mip_off);
 			gpu_set_tex_filter(Filtering);
 			gpu_set_tex_repeat(Repeat);
-			_setShader = true;
 			global.__bbmodMaterialCurrent = self;
 		}
 
-		if (_setShader)
+		var _shader = Shaders[? global.bbmod_render_pass];
+		if (BBMOD_SHADER_CURRENT != _shader)
 		{
-			Shaders[? global.bbmod_render_pass].set().set_material(self);
-			global.__bbmodRenderPassCurrent = global.bbmod_render_pass;
+			if (BBMOD_SHADER_CURRENT != BBMOD_NONE)
+			{
+				BBMOD_SHADER_CURRENT.reset();
+			}
+			_shader.set().set_material(self);
 		}
 
 		if (OnApply != undefined)
@@ -487,8 +486,11 @@ function bbmod_material_reset()
 	gml_pragma("forceinline");
 	if (global.__bbmodMaterialCurrent != BBMOD_NONE)
 	{
-		BBMOD_SHADER_CURRENT.reset();
 		gpu_pop_state();
 		global.__bbmodMaterialCurrent = BBMOD_NONE;
+	}
+	if (BBMOD_SHADER_CURRENT != BBMOD_NONE)
+	{
+		BBMOD_SHADER_CURRENT.reset();
 	}
 }
