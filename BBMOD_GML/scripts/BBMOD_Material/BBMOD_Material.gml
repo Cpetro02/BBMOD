@@ -425,6 +425,7 @@ function BBMOD_Material(_shader=undefined)
 
 			vertex_submit(_command.VertexBuffer, pr_trianglelist, _command.Texture);
 		}
+		return self;
 	};
 
 	/// @func clear_queue()

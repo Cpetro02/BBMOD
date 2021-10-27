@@ -8,6 +8,7 @@
 * Added new macro `BBMOD_RENDER_ALPHA`.
 * Method `BBMOD_Material.apply` now returns `true` or `false` based on whether the material was applied (instead of always returning `self`).
 * Method `BBMOD_Material.submit_queue` does not longer automatically clear the queue.
+* Fixed return value of `BBMOD_Material.submit_queue`, which should have been `self`, but the method did not return anything.
 * Added new method `BBMOD_Material.clear_queue`, which clears the material's render queue.
 
 **PBR module:**
