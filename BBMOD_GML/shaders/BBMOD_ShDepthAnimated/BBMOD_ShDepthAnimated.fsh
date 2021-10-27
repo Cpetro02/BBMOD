@@ -12,7 +12,8 @@ uniform float bbmod_ClipFar;
 // Pixels with alpha less than this value will be discarded.
 uniform float bbmod_AlphaTest;
 
-
+// TODO: Fix Xpanda's include
+// #if 1
 /// @param d Linearized depth to encode.
 /// @return Encoded depth.
 /// @source http://aras-p.info/blog/2009/07/30/encoding-floats-to-rgba-the-final/
@@ -39,6 +40,8 @@ float xDecodeDepth(vec3 c)
 	const float inv255 = 1.0 / 255.0;
 	return c.x + (c.y * inv255) + (c.z * inv255 * inv255);
 }
+// #endif
+
 
 void main()
 {
@@ -47,7 +50,7 @@ void main()
 	{
 		discard;
 	}
-	gl_FragColor.rgb = xEncodeDepth(v_fDepth / bbmod_ClipFar);
+	gl_FragColor.rgb = xEncodeDepth(v_fDepth);
 	gl_FragColor.a = 1.0;
 }
 // include("Uber_PS.xsh")

@@ -10,6 +10,35 @@ varying float v_fDepth;
 // Pixels with alpha less than this value will be discarded.
 uniform float bbmod_AlphaTest;
 
+// TODO: Fix Xpanda's include
+// #if 0
+/// @param d Linearized depth to encode.
+/// @return Encoded depth.
+/// @source http://aras-p.info/blog/2009/07/30/encoding-floats-to-rgba-the-final/
+vec3 xEncodeDepth(float d)
+{
+	const float inv255 = 1.0 / 255.0;
+	vec3 enc;
+	enc.x = d;
+	enc.y = d * 255.0;
+	enc.z = enc.y * 255.0;
+	enc = fract(enc);
+	float temp = enc.z * inv255;
+	enc.x -= enc.y * inv255;
+	enc.y -= temp;
+	enc.z -= temp;
+	return enc;
+}
+
+/// @param c Encoded depth.
+/// @return Docoded linear depth.
+/// @source http://aras-p.info/blog/2009/07/30/encoding-floats-to-rgba-the-final/
+float xDecodeDepth(vec3 c)
+{
+	const float inv255 = 1.0 / 255.0;
+	return c.x + (c.y * inv255) + (c.z * inv255 * inv255);
+}
+// #endif
 
 
 void main()

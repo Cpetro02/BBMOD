@@ -57,6 +57,13 @@ function BBMOD_Renderer()
 	/// have any effect. Defaults to 1.
 	RenderScale = 1.0;
 
+	/// @var {BBMOD_DirectionalLight/undefined} The directional light.
+	DirectionalLight = undefined;
+
+	/// @var {BBMOD_PointLight[]} An array of point lights.
+	/// @readonly
+	PointLights = [];
+
 	/// @func add(_renderable)
 	/// @desc Adds a renderable object or struct to the renderer.
 	/// @param {BBMOD_IRenderable} _renderable The renderable object or struct

@@ -173,3 +173,13 @@ else
 	animationPlayer.set_node_rotation(_neckIndex, undefined);
 	animationPlayer.set_node_rotation(_rightArmIndex, undefined);
 }
+
+// TODO: Automatically set the directional light's position to the camera's position
+// (in BBMOD_Renderer?)
+var _light = OMain.renderer.DirectionalLight;
+if (_light != undefined)
+{
+	_light.Position.X = x;
+	_light.Position.Y = y;
+	_light.Position.Z = z;
+}

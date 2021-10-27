@@ -5,6 +5,8 @@ function BBMOD_PBRRenderer()
 {
 	static render = function () {
 		var _world = matrix_get(matrix_world);
+		var _view = matrix_get(matrix_view);
+		var _projection = matrix_get(matrix_projection);
 
 		var i = 0;
 		repeat (array_length(Renderables))
@@ -21,18 +23,31 @@ function BBMOD_PBRRenderer()
 		var m = 0;
 
 		// Shadows pass
-		global.bbmod_render_pass = BBMOD_RENDER_SHADOWS;
-		m = 0;
-		repeat (array_length(_materials))
+		if (DirectionalLight != undefined
+			&& DirectionalLight.CastShadows
+			&& DirectionalLight.set_target())
 		{
-			var _material = _materials[m++];
-			if (_material.has_commands())
+			draw_clear(c_black);
+
+			global.bbmod_render_pass = BBMOD_RENDER_SHADOWS;
+			m = 0;
+			repeat (array_length(_materials))
 			{
-				if (_material.apply())
+				var _material = _materials[m++];
+				if (_material.has_commands())
 				{
-					_material.submit_queue();
+					if (_material.apply())
+					{
+						_material.submit_queue();
+					}
 				}
 			}
+
+			DirectionalLight.reset_target();
+
+			// Reset to the current camera's matrices
+			matrix_set(matrix_view, _view);
+			matrix_set(matrix_projection, _projection);
 		}
 
 		// Forward pass
@@ -45,6 +60,24 @@ function BBMOD_PBRRenderer()
 			{
 				if (_material.apply())
 				{
+					if (DirectionalLight != undefined
+						&& DirectionalLight.CastShadows)
+					{
+						try
+						{
+							var _shadowmap = surface_get_texture(
+								DirectionalLight.get_shadowmap_surface());
+							var _matrix = matrix_multiply(
+								DirectionalLight.get_view_matrix(),
+								DirectionalLight.get_projection_matrix());
+							BBMOD_SHADER_CURRENT.set_shadowmap(_shadowmap, _matrix);
+						}
+						catch (_ignore)
+						{
+							show_debug_message(_ignore);
+						}
+					}
+
 					_material.submit_queue()
 						.clear_queue();
 				}

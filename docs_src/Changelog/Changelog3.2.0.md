@@ -10,6 +10,18 @@
 * Method `BBMOD_Material.submit_queue` does not longer automatically clear the queue.
 * Fixed return value of `BBMOD_Material.submit_queue`, which should have been `self`, but the method did not return anything.
 * Added new method `BBMOD_Material.clear_queue`, which clears the material's render queue.
+* Added new function `bbmod_surface_check`, which creates a new surface if it does not exist or if it has wrong size.
+* Added new interface `BBMOD_IRenderTarget` for structs that can be set as a render target.
+
+**Cubemap module:**
+* Added new module - Cubemap.
+* Added new struct `BBMOD_Cubemap`.
+
+**Lights module:**
+* Added new module - Lights.
+* Added new struct `BBMOD_Light`.
+* Added new struct `BBMOD_DirectionalLight`.
+* Added new struct `BBMOD_PointLight`.
 
 **PBR module:**
 * Parameter `_shader` in the constructor of `BBMOD_PBRMaterial` is now optional.

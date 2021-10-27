@@ -28,6 +28,12 @@ function BBMOD_PBRShader(_shader, _vertexFormat)
 
 	UIBLTexel = get_uniform("bbmod_IBLTexel");
 
+	UShadowmap = get_sampler_index("bbmod_Shadowmap");
+
+	UShadowmapMatrix = get_uniform("bbmod_ShadowmapMatrix");
+
+	UShadowmapTexel = get_uniform("bbmod_ShadowmapTexel");
+
 	/// @func set_cam_pos(_x[, _y, _z])
 	/// @desc Sets a fragment shader uniform `bbmod_CamPos` to the given position.
 	/// @param {BBMOD_Vec3/real} _x Either a vector with the camera's position
@@ -125,6 +131,21 @@ function BBMOD_PBRShader(_shader, _vertexFormat)
 		var _texel = global.__bbmodIblTexel;
 		set_uniform_f(UIBLTexel, _texel, _texel);
 
+		return self;
+	};
+
+	/// @func set_shadowmap(_texture, _matrix)
+	/// @desc
+	/// @param {ptr} _texture
+	/// @param {real[16]} _matrix
+	/// @return {BBMOD_PBRShader} Returns `self`.
+	static set_shadowmap = function (_texture, _matrix) {
+		gml_pragma("forceinline");
+		set_sampler(UShadowmap, _texture);
+		set_uniform_f2(UShadowmapTexel,
+			texture_get_texel_width(_texture),
+			texture_get_texel_height(_texture));
+		set_uniform_matrix_array(UShadowmapMatrix, _matrix);
 		return self;
 	};
 

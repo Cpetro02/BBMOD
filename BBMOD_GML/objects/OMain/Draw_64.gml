@@ -25,3 +25,13 @@ if (_cutscene)
 		c_black, c_black, c_black, c_black, false);
 	draw_text(_x, _y, _text);
 }
+
+// Debug
+if (false)
+{
+	if (renderer.DirectionalLight != undefined)
+	{
+		var _shadowmap = renderer.DirectionalLight.get_shadowmap_surface();
+		draw_surface_stretched(_shadowmap, 0, 0, 256, 256);
+	}
+}

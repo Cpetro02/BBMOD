@@ -34,6 +34,12 @@ uniform vec3 bbmod_CamPos;
 
 // Camera's exposure value
 uniform float bbmod_Exposure;
+
+uniform sampler2D bbmod_Shadowmap;
+
+uniform mat4 bbmod_ShadowmapMatrix;
+
+uniform vec2 bbmod_ShadowmapTexel;
 #endif
 
 #if OUTPUT_DEPTH
@@ -43,6 +49,11 @@ uniform float bbmod_ClipFar;
 
 // Pixels with alpha less than this value will be discarded.
 uniform float bbmod_AlphaTest;
+
+// TODO: Fix Xpanda's include
+// #if OUTPUT_DEPTH
+#pragma include("DepthEncoding.xsh", "glsl")
+// #endif
 
 #if PBR
 #pragma include("BRDF.xsh", "glsl")
@@ -58,10 +69,8 @@ uniform float bbmod_AlphaTest;
 #pragma include("CheapSubsurface.xsh", "glsl")
 
 #pragma include("Material.xsh", "glsl")
-#endif
 
-#if OUTPUT_DEPTH
-#pragma include("DepthEncoding.xsh", "glsl")
+#pragma include("ShadowMapping.xsh", "glsl")
 #endif
 
 void main()
@@ -85,6 +94,11 @@ void main()
 	vec3 N = material.Normal;
 	vec3 V = normalize(bbmod_CamPos - v_vVertex);
 	vec3 lightColor = xDiffuseIBL(bbmod_IBL, bbmod_IBLTexel, N);
+
+	float bias = 1.5;
+	vec3 posShadowMap = (bbmod_ShadowmapMatrix * vec4(v_vVertex + N * bias, 1.0)).xyz * 0.5 + 0.5;
+	posShadowMap.y = 1.0 - posShadowMap.y;
+	float shadow = xShadowMapPCF(bbmod_Shadowmap, bbmod_ShadowmapTexel, posShadowMap.xy, posShadowMap.z);
 
 	// Diffuse
 	gl_FragColor.rgb = material.Base * lightColor;
