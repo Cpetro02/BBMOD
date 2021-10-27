@@ -6,7 +6,7 @@
     "path": "folders/BBMOD/ShadowMapping.yy",
   },
   "resourceVersion": "1.0",
-  "name": "BBMOD_DepthShader",
+  "name": "bbmod_shadow_mapping",
   "tags": [],
   "resourceType": "GMScript",
 }

@@ -42,11 +42,6 @@ uniform mat4 bbmod_ShadowmapMatrix;
 uniform vec2 bbmod_ShadowmapTexel;
 #endif
 
-#if OUTPUT_DEPTH
-// Distance to the camera's far clipping plane.
-uniform float bbmod_ClipFar;
-#endif
-
 // Pixels with alpha less than this value will be discarded.
 uniform float bbmod_AlphaTest;
 
@@ -95,10 +90,15 @@ void main()
 	vec3 V = normalize(bbmod_CamPos - v_vVertex);
 	vec3 lightColor = xDiffuseIBL(bbmod_IBL, bbmod_IBLTexel, N);
 
-	float bias = 1.5;
-	vec3 posShadowMap = (bbmod_ShadowmapMatrix * vec4(v_vVertex + N * bias, 1.0)).xyz * 0.5 + 0.5;
+	float bias = 0.4;
+	vec3 posShadowMap = (bbmod_ShadowmapMatrix * vec4(v_vVertex + N * bias, 1.0)).xyz;
+	posShadowMap.xy = posShadowMap.xy * 0.5 + 0.5;
 	posShadowMap.y = 1.0 - posShadowMap.y;
 	float shadow = xShadowMapPCF(bbmod_Shadowmap, bbmod_ShadowmapTexel, posShadowMap.xy, posShadowMap.z);
+
+	vec3 L = normalize(vec3(1.0));
+	float NdotL = max(dot(N, L), 0.0);
+	lightColor += xGammaToLinear(vec3(1.0)) * NdotL * (1.0 - shadow);
 
 	// Diffuse
 	gl_FragColor.rgb = material.Base * lightColor;
@@ -121,7 +121,7 @@ void main()
 		discard;
 	}
 	#if OUTPUT_DEPTH
-	gl_FragColor.rgb = xEncodeDepth(v_fDepth / bbmod_ClipFar);
+	gl_FragColor.rgb = xEncodeDepth(v_fDepth);
 	gl_FragColor.a = 1.0;
 	#else
 	gl_FragColor = baseOpacity;

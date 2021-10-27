@@ -18,19 +18,34 @@ function __bbmod_shader_pbr_batched()
 
 function __bbmod_material_pbr()
 {
-	static _material = new BBMOD_PBRMaterial(BBMOD_SHADER_PBR);
+	static _material = undefined;
+	if (_material == undefined)
+	{
+		_material = new BBMOD_PBRMaterial(BBMOD_SHADER_PBR);
+		_material.set_shader(BBMOD_RENDER_SHADOWS, BBMOD_SHADER_SHADOWMAP);
+	}
 	return _material;
 }
 
 function __bbmod_material_pbr_animated()
 {
-	static _material = new BBMOD_PBRMaterial(BBMOD_SHADER_PBR_ANIMATED);
+	static _material = undefined;
+	if (_material == undefined)
+	{
+		_material = new BBMOD_PBRMaterial(BBMOD_SHADER_PBR_ANIMATED);
+		_material.set_shader(BBMOD_RENDER_SHADOWS, BBMOD_SHADER_SHADOWMAP_ANIMATED);
+	}
 	return _material;
 }
 
 function __bbmod_material_pbr_batched()
 {
-	static _material = new BBMOD_PBRMaterial(BBMOD_SHADER_PBR_BATCHED);
+	static _material = undefined;
+	if (_material == undefined)
+	{
+		_material = new BBMOD_PBRMaterial(BBMOD_SHADER_PBR_BATCHED);
+		_material.set_shader(BBMOD_RENDER_SHADOWS, BBMOD_SHADER_SHADOWMAP_BATCHED);
+	}
 	return _material;
 }
 

@@ -6,9 +6,6 @@ varying mat3 v_mTBN;
 varying float v_fDepth;
 
 
-// Distance to the camera's far clipping plane.
-uniform float bbmod_ClipFar;
-
 // Pixels with alpha less than this value will be discarded.
 uniform float bbmod_AlphaTest;
 
@@ -50,7 +47,7 @@ void main()
 	{
 		discard;
 	}
-	gl_FragColor.rgb = xEncodeDepth(v_fDepth / bbmod_ClipFar);
+	gl_FragColor.rgb = xEncodeDepth(v_fDepth);
 	gl_FragColor.a = 1.0;
 }
 // include("Uber_PS.xsh")

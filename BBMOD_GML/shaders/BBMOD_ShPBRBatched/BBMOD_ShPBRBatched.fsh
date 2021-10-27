@@ -41,7 +41,6 @@ uniform mat4 bbmod_ShadowmapMatrix;
 
 uniform vec2 bbmod_ShadowmapTexel;
 
-
 // Pixels with alpha less than this value will be discarded.
 uniform float bbmod_AlphaTest;
 
@@ -450,7 +449,12 @@ float xShadowMapCompare(sampler2D shadowMap, vec2 texel, vec2 uv, float compareZ
 	vec2 f = fract(temp);
 	vec2 centroidUV = floor(temp) * texel;
 	vec2 pos = centroidUV;
-	float lb = step(xDecodeDepth(texture2D(shadowMap, pos).rgb), compareZ); // (0,0)
+	vec3 s = texture2D(shadowMap, pos).rgb;
+	if (s == vec3(1.0, 0.0, 0.0))
+	{
+		return 0.0;
+	}
+	float lb = step(xDecodeDepth(s), compareZ); // (0,0)
 	pos.y += texel.y;
 	float lt = step(xDecodeDepth(texture2D(shadowMap, pos).rgb), compareZ); // (0,1)
 	pos.x += texel.x;
@@ -532,10 +536,15 @@ void main()
 	vec3 V = normalize(bbmod_CamPos - v_vVertex);
 	vec3 lightColor = xDiffuseIBL(bbmod_IBL, bbmod_IBLTexel, N);
 
-	float bias = 1.5;
-	vec3 posShadowMap = (bbmod_ShadowmapMatrix * vec4(v_vVertex + N * bias, 1.0)).xyz * 0.5 + 0.5;
+	float bias = 0.4;
+	vec3 posShadowMap = (bbmod_ShadowmapMatrix * vec4(v_vVertex + N * bias, 1.0)).xyz;
+	posShadowMap.xy = posShadowMap.xy * 0.5 + 0.5;
 	posShadowMap.y = 1.0 - posShadowMap.y;
 	float shadow = xShadowMapPCF(bbmod_Shadowmap, bbmod_ShadowmapTexel, posShadowMap.xy, posShadowMap.z);
+
+	vec3 L = normalize(vec3(1.0));
+	float NdotL = max(dot(N, L), 0.0);
+	lightColor += xGammaToLinear(vec3(1.0)) * NdotL * (1.0 - shadow);
 
 	// Diffuse
 	gl_FragColor.rgb = material.Base * lightColor;

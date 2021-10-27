@@ -5,7 +5,7 @@
     "path": "folders/BBMOD/ShadowMapping/Shaders.yy",
   },
   "resourceVersion": "1.0",
-  "name": "BBMOD_ShDepth",
+  "name": "BBMOD_ShShadowmapAnimated",
   "tags": [],
   "resourceType": "GMShader",
 }

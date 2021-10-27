@@ -30,7 +30,5 @@
 
 **Shadow mapping module:**
 * Added new module - Shadow mapping.
-* Added new shaders `BBMOD_ShDepth`, `BBMOD_ShDepthAnimated` and `BBMOD_ShDepthBatched`, which only output the scene's depth.
-* Added new struct `BBMOD_DepthShader`.
-* Added new macros `BBMOD_SHADER_DEPTH`, `BBMOD_SHADER_DEPTH_ANIMATED` and `BBMOD_SHADER_DEPTH_BATCHED`.
-* Added new variable `global.bbmod_camera_clip_far`.
+* Added new shaders `BBMOD_ShShadowmap`, `BBMOD_ShShadowmapAnimated` and `BBMOD_ShShadowmapBatched` for shadow mapping.
+* Added new macros `BBMOD_SHADER_SHADOWMAP`, `BBMOD_SHADER_SHADOWMAP_ANIMATED` and `BBMOD_SHADER_SHADOWMAP_BATCHED`.

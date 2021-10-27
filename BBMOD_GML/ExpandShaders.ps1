@@ -9,6 +9,6 @@ Xpanda .\shaders\BBMOD_ShPBRAnimated --x .\Xshaders\     ANIMATED=1 BATCHED=0 PB
 Xpanda .\shaders\BBMOD_ShPBRBatched --x .\Xshaders\      ANIMATED=0 BATCHED=1 PBR=1 OUTPUT_DEPTH=0
 
 # Shadow mapping shaders
-Xpanda .\shaders\BBMOD_ShDepth --x .\Xshaders\           ANIMATED=0 BATCHED=0 PBR=0 OUTPUT_DEPTH=1
-Xpanda .\shaders\BBMOD_ShDepthAnimated --x .\Xshaders\   ANIMATED=1 BATCHED=0 PBR=0 OUTPUT_DEPTH=1
-Xpanda .\shaders\BBMOD_ShDepthBatched --x .\Xshaders\    ANIMATED=0 BATCHED=1 PBR=0 OUTPUT_DEPTH=1
+Xpanda .\shaders\BBMOD_ShShadowmap --x .\Xshaders\           ANIMATED=0 BATCHED=0 PBR=0 OUTPUT_DEPTH=1
+Xpanda .\shaders\BBMOD_ShShadowmapAnimated --x .\Xshaders\   ANIMATED=1 BATCHED=0 PBR=0 OUTPUT_DEPTH=1
+Xpanda .\shaders\BBMOD_ShShadowmapBatched --x .\Xshaders\    ANIMATED=0 BATCHED=1 PBR=0 OUTPUT_DEPTH=1

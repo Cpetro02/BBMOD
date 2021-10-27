@@ -6,7 +6,6 @@ varying mat3 v_mTBN;
 varying float v_fDepth;
 
 
-
 // Pixels with alpha less than this value will be discarded.
 uniform float bbmod_AlphaTest;
 

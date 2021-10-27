@@ -27,7 +27,7 @@ function BBMOD_PBRRenderer()
 			&& DirectionalLight.CastShadows
 			&& DirectionalLight.set_target())
 		{
-			draw_clear(c_black);
+			draw_clear(c_red);
 
 			global.bbmod_render_pass = BBMOD_RENDER_SHADOWS;
 			m = 0;

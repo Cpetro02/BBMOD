@@ -17,7 +17,6 @@ modCharacter = new BBMOD_Model("Data/Assets/Character/Character.bbmod");
 modCharacter.freeze();
 
 matPlayer = BBMOD_MATERIAL_PBR_ANIMATED.clone();
-matPlayer.set_shader(BBMOD_RENDER_SHADOWS, BBMOD_SHADER_DEPTH_ANIMATED);
 matPlayer.BaseOpacity = sprite_get_texture(SprPlayer, choose(0, 1));
 modCharacter.Materials[0] = matPlayer;
 
@@ -34,11 +33,9 @@ animWalk.add_event(0, "Footstep").add_event(32, "Footstep");
 
 // Zombie
 matZombie0 = BBMOD_MATERIAL_PBR_ANIMATED.clone();
-matZombie0.set_shader(BBMOD_RENDER_SHADOWS, BBMOD_SHADER_DEPTH_ANIMATED);
 matZombie0.BaseOpacity = sprite_get_texture(SprZombie, 0);
 
 matZombie1 = BBMOD_MATERIAL_PBR_ANIMATED.clone();
-matZombie1.set_shader(BBMOD_RENDER_SHADOWS, BBMOD_SHADER_DEPTH_ANIMATED);
 matZombie1.BaseOpacity = sprite_get_texture(SprZombie, 1);
 
 animZombieIdle = new BBMOD_Animation("Data/Assets/Character/Zombie_Idle.bbanim");
@@ -110,7 +107,7 @@ renderer.RenderScale = 2;
 
 var _lightSun = new BBMOD_DirectionalLight();
 _lightSun.CastShadows = true;
-_lightSun.ShadowmapArea = 200;
+_lightSun.ShadowmapArea = 512;
 _lightSun.ShadowmapResolution = 2048;
 renderer.DirectionalLight = _lightSun;
 
