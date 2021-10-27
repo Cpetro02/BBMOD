@@ -2,6 +2,7 @@ varying vec3 v_vVertex;
 //varying vec4 v_vColor;
 varying vec2 v_vTexCoord;
 varying mat3 v_mTBN;
+varying float v_fDepth;
 
 #if PBR
 // RGB: Base color, A: Opacity
@@ -35,6 +36,11 @@ uniform vec3 bbmod_CamPos;
 uniform float bbmod_Exposure;
 #endif
 
+#if OUTPUT_DEPTH
+// Distance to the camera's far clipping plane.
+uniform float bbmod_ClipFar;
+#endif
+
 // Pixels with alpha less than this value will be discarded.
 uniform float bbmod_AlphaTest;
 
@@ -52,6 +58,10 @@ uniform float bbmod_AlphaTest;
 #pragma include("CheapSubsurface.xsh", "glsl")
 
 #pragma include("Material.xsh", "glsl")
+#endif
+
+#if OUTPUT_DEPTH
+#pragma include("DepthEncoding.xsh", "glsl")
 #endif
 
 void main()
@@ -96,6 +106,11 @@ void main()
 	{
 		discard;
 	}
+	#if OUTPUT_DEPTH
+	gl_FragColor.rgb = xEncodeDepth(v_fDepth / bbmod_ClipFar);
+	gl_FragColor.a = 1.0;
+	#else
 	gl_FragColor = baseOpacity;
+	#endif
 #endif
 }

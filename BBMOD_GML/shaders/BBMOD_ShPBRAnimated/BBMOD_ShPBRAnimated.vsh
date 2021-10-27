@@ -14,6 +14,7 @@ varying vec3 v_vVertex;
 //varying vec4 v_vColor;
 varying vec2 v_vTexCoord;
 varying mat3 v_mTBN;
+varying float v_fDepth;
 
 uniform vec2 bbmod_TextureOffset;
 uniform vec2 bbmod_TextureScale;
@@ -73,6 +74,7 @@ void main()
 	vec4 normal = vec4(xQuaternionRotate(blendReal, in_Normal), 0.0);
 
 	gl_Position = gm_Matrices[MATRIX_WORLD_VIEW_PROJECTION] * position;
+	v_fDepth = gl_Position.z;
 	v_vVertex = (gm_Matrices[MATRIX_WORLD] * position).xyz;
 	//v_vColor = in_Color;
 	v_vTexCoord = bbmod_TextureOffset + in_TextureCoord0 * bbmod_TextureScale;

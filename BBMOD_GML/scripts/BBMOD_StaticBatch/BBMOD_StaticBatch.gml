@@ -118,11 +118,10 @@ function BBMOD_StaticBatch(_vformat)
 	/// @see BBMOD_Material
 	static submit = function (_material) {
 		gml_pragma("forceinline");
-		if (!_material.has_shader(global.bbmod_render_pass))
+		if (!_material.apply())
 		{
 			return self;
 		}
-		_material.apply();
 		vertex_submit(VertexBuffer, pr_trianglelist, _material.BaseOpacity);
 		return self;
 	};

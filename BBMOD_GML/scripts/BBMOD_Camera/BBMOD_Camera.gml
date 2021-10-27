@@ -328,6 +328,7 @@ function BBMOD_Camera() constructor
 		camera_apply(Raw);
 		Position.Copy(global.bbmod_camera_position);
 		global.bbmod_camera_exposure = Exposure;
+		global.bbmod_camera_clip_far = ZFar;
 		return self;
 	};
 }

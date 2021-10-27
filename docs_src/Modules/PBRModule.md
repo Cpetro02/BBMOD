@@ -4,6 +4,9 @@ support for the metallic-roughness workflow. Using this module you can render
 models textured in professional, industry standard software like
 [Substance Painter](https://www.substance3d.com/).
 
+## Required modules
+* [Renderer module](./RendererModule.html)
+
 ## Scripting API
 ### Functions
 * [bbmod_set_ibl_sprite](./bbmod_set_ibl_sprite.html)
@@ -20,4 +23,5 @@ models textured in professional, industry standard software like
 
 ### Structs
 * [BBMOD_PBRMaterial](./BBMOD_PBRMaterial.html)
+* [BBMOD_PBRRenderer](./BBMOD_PBRRenderer.html)
 * [BBMOD_PBRShader](./BBMOD_PBRShader.html)

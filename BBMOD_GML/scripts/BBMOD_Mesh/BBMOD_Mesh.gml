@@ -80,11 +80,10 @@ function BBMOD_Mesh(_vertexFormat)
 	/// @return {BBMOD_Mesh} Returns `self`.
 	/// @private
 	static submit = function (_material, _transform) {
-		if (!_material.has_shader(global.bbmod_render_pass))
+		if (!_material.apply())
 		{
 			return self;
 		}
-		_material.apply();
 		if (_transform != undefined)
 		{
 			BBMOD_SHADER_CURRENT.set_bones(_transform);

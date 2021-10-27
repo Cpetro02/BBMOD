@@ -133,14 +133,17 @@ function BBMOD_Renderer()
 		bbmod_material_reset();
 
 		var _materials = bbmod_get_materials();
-		var i = 0;
+		var m = 0;
 		repeat (array_length(_materials))
 		{
-			var _material = _materials[i++];
+			var _material = _materials[m++];
 			if (_material.has_commands())
 			{
-				_material.apply();
-				_material.submit_queue();
+				if (_material.apply())
+				{
+					_material.submit_queue()
+						.clear_queue();
+				}
 			}
 		}
 

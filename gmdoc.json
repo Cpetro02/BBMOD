@@ -52,6 +52,7 @@
         "Camera module": "Modules/CameraModule.md",
         "Renderer module": "Modules/RendererModule.md",
         "PBR module": "Modules/PBRModule.md",
+        "Shadow mapping module": "Modules/ShadowMappingModule.md",
         "State machine module": "Modules/StateMachineModule.md",
         "ColMesh module": "Modules/ColMeshModule.md"
       }

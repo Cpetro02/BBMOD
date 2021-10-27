@@ -84,11 +84,10 @@ function BBMOD_DynamicBatch(_model, _size)
 	/// @see BBMOD_Material
 	static submit = function (_material, _data) {
 		gml_pragma("forceinline");
-		if (!_material.has_shader(global.bbmod_render_pass))
+		if (!_material.apply())
 		{
 			return self;
 		}
-		_material.apply();
 		BBMOD_SHADER_CURRENT.set_batch_data(_data);
 		vertex_submit(VertexBuffer, pr_trianglelist, _material.BaseOpacity);
 		return self;

@@ -96,7 +96,7 @@ _objImporter.destroy();
 
 ////////////////////////////////////////////////////////////////////////////////
 // Create a renderer
-renderer = new BBMOD_Renderer()
+renderer = new BBMOD_PBRRenderer()
 	.add(OCharacter)
 	.add(OGun)
 	.add(OLever)

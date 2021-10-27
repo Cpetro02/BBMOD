@@ -231,9 +231,14 @@ function BBMOD_Material(_shader=undefined)
 
 	/// @func apply()
 	/// @desc Makes this material the current one.
-	/// @return {BBMOD_Material} Returns `self`.
+	/// @return {bool} Returns `true` if the material was applied.
 	/// @see BBMOD_Material.reset
 	static apply = function () {
+		if ((RenderPass & global.bbmod_render_pass) == 0)
+		{
+			return false;
+		}
+
 		if (global.__bbmodMaterialCurrent != self)
 		{
 			reset();
@@ -264,7 +269,7 @@ function BBMOD_Material(_shader=undefined)
 			OnApply(self);
 		}
 
-		return self;
+		return true;
 	};
 
 	static _make_sprite = function (_r, _g, _b, _a) {
@@ -387,8 +392,9 @@ function BBMOD_Material(_shader=undefined)
 	};
 
 	/// @func submit_queue()
-	/// @desc Submits all render commands.
+	/// @desc Submits all render commands without clearing the render queue.
 	/// @return {BBMOD_Material} Returns `self`.
+	/// @see BBMOD_Material.clear_queue
 	/// @see BBMOD_Material.RenderCommands
 	/// @see BBMOD_RenderCommand
 	static submit_queue = function () {
@@ -419,7 +425,15 @@ function BBMOD_Material(_shader=undefined)
 
 			vertex_submit(_command.VertexBuffer, pr_trianglelist, _command.Texture);
 		}
+	};
+
+	/// @func clear_queue()
+	/// @desc Clears the queue of render commands.
+	/// @return {BBMOD_Material} Returns `self`.
+	static clear_queue = function () {
+		gml_pragma("forceinline");
 		ds_list_clear(RenderCommands);
+		return self;
 	};
 
 	static destroy = function () {

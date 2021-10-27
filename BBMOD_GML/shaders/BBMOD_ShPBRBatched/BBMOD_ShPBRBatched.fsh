@@ -3,6 +3,7 @@ varying vec3 v_vVertex;
 //varying vec4 v_vColor;
 varying vec2 v_vTexCoord;
 varying mat3 v_mTBN;
+varying float v_fDepth;
 
 // RGB: Base color, A: Opacity
 #define bbmod_BaseOpacity gm_BaseTexture
@@ -33,6 +34,7 @@ uniform vec3 bbmod_CamPos;
 
 // Camera's exposure value
 uniform float bbmod_Exposure;
+
 
 // Pixels with alpha less than this value will be discarded.
 uniform float bbmod_AlphaTest;
@@ -293,6 +295,7 @@ Material UnpackMaterial(
 		emissive,
 		specular);
 }
+
 
 void main()
 {

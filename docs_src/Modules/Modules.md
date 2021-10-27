@@ -14,5 +14,6 @@ individual modules.
 * [Camera module](./CameraModule.html)
 * [Renderer module](./RendererModule.html)
 * [PBR module](./PBRModule.html)
+* [Shadow mapping module](./ShadowMappingModule.html)
 * [State machine module](./StateMachineModule.html)
 * [ColMesh module](./ColMeshModule.html)
