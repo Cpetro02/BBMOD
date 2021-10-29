@@ -352,10 +352,10 @@ function BBMOD_Model(_file, _sha1)
 	/// @note Only parts of the model that use materials compatible with the
 	/// current render pass are submitted!
 	///
-	/// @see RenderPasses.html
 	/// @see BBMOD_Material
 	/// @see BBMOD_AnimationPlayer.get_transform
 	/// @see bbmod_material_reset
+	/// @see BBMOD_ERenderPass
 	static submit = function (_materials, _transform) {
 		gml_pragma("forceinline");
 		if (_materials == undefined)

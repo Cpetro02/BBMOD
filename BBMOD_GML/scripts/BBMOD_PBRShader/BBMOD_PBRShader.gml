@@ -142,6 +142,9 @@ function BBMOD_PBRShader(_shader, _vertexFormat)
 	static set_shadowmap = function (_texture, _matrix) {
 		gml_pragma("forceinline");
 		set_sampler(UShadowmap, _texture);
+		gpu_set_tex_mip_enable_ext(UShadowmap, false);
+		gpu_set_tex_filter_ext(UShadowmap, true);
+		gpu_set_tex_repeat_ext(UShadowmap, false);
 		set_uniform_f2(UShadowmapTexel,
 			texture_get_texel_width(_texture),
 			texture_get_texel_height(_texture));

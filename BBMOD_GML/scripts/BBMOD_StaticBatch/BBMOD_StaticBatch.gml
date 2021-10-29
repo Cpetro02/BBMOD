@@ -113,9 +113,9 @@ function BBMOD_StaticBatch(_vformat)
 	/// @note The static batch is *not* submitted if the material used is not
 	/// compatible with the current render pass!
 	///
-	/// @see RenderPasses.html
 	/// @see BBMOD_StaticBatch.render
 	/// @see BBMOD_Material
+	/// @see BBMOD_ERenderPass
 	static submit = function (_material) {
 		gml_pragma("forceinline");
 		if (!_material.apply())

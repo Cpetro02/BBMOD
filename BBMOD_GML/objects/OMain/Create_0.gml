@@ -48,6 +48,15 @@ animZombieDeath = new BBMOD_Animation("Data/Assets/Character/Zombie_Death.bbanim
 var _objImporter = new BBMOD_OBJImporter();
 _objImporter.FlipUVVertically = true;
 
+modPlane = _objImporter.import("Data/Assets/Plane.obj");
+modPlane.freeze();
+
+matGrass = BBMOD_MATERIAL_PBR.clone()
+	.set_base_opacity(c_white, 1.0)
+	.set_normal_roughness(BBMOD_VEC3_UP, 0.8);
+
+modPlane.Materials[0] = matGrass;
+
 modGun = _objImporter.import("Data/Assets/Pistol.obj");
 modGun.freeze();
 
@@ -70,6 +79,7 @@ modGun.Materials[@ 2] = matGun2;
 modShell = _objImporter.import("Data/Assets/Shell.obj");
 
 matShell = BBMOD_MATERIAL_PBR_BATCHED.clone()
+	.remove_shader(BBMOD_RENDER_SHADOWS)
 	.set_base_opacity($56DAE8, 1.0)
 	.set_normal_roughness(BBMOD_VEC3_UP, 0.3)
 	.set_metallic_ao(1.0, 1.0);
@@ -117,5 +127,12 @@ renderer.add({
 		matrix_set(matrix_world, matrix_build_identity());
 		batchShell.render_object(OShell, matShell);
 		batchSign.render(matWood);
+	})
+});
+
+renderer.add({
+	render: method(self, function () {
+		matrix_set(matrix_world, matrix_build(0, 0, 0, 0, 0, 0, room_width, room_height, 0));
+		modPlane.render();
 	})
 });

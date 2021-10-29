@@ -77,11 +77,11 @@ function BBMOD_DynamicBatch(_model, _size)
 	/// @note The dynamic batch is *not* submitted if the material used is not
 	/// compatible with the current render pass!
 	///
-	/// @see RenderPasses.html
 	/// @see BBMOD_DynamicBatch.submit_object
 	/// @see BBMOD_DynamicBatch.render
 	/// @see BBMOD_DynamicBatch.render_object
 	/// @see BBMOD_Material
+	/// @see BBMOD_ERenderPass
 	static submit = function (_material, _data) {
 		gml_pragma("forceinline");
 		if (!_material.apply())

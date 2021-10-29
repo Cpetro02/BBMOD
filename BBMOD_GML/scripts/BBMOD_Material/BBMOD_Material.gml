@@ -1,22 +1,42 @@
-/// @macro {uint} A flag used to tell that a material is rendered in a shadow
-/// render pass.
-/// @see RenderPasses.html
-#macro BBMOD_RENDER_SHADOWS (1 << 0)
+/// @enum Enumeration of render passes.
+enum BBMOD_ERenderPass
+{
+	/// @member Render pass where shadow-casting are objects rendered into
+	/// shadow maps.
+	Shadows,
+	/// @member Render pass where opaque objects are rendered into a g-buffer.
+	Deferred,
+	/// @member Render pass where opaque objects are rendered into the frame buffer.
+	Forward,
+	/// @member Render pass where alpha-blended objects are rendered.
+	Alpha,
+	/// @member Total number of members of this enum.
+	SIZE
+};
 
-/// @macro {uint} A flag used to tell that a material is rendered in a deferred
-/// render pass.
-/// @see RenderPasses.html
-#macro BBMOD_RENDER_DEFERRED (1 << 1)
+/// @macro {BBMOD_ERenderPass} Render pass where shadow-casting are objects
+/// rendered into shadow maps.
+/// @deprecated Please use {@link BBMOD_ERenderPass.Shadows} instead.
+/// @see BBMOD_ERenderPass
+#macro BBMOD_RENDER_SHADOWS BBMOD_ERenderPass.Shadows
 
-/// @macro {uint} A flag used to tell that a material is rendered in a forward
-/// render pass.
-/// @see RenderPasses.html
-#macro BBMOD_RENDER_FORWARD (1 << 2)
+/// @macro {BBMOD_ERenderPass} Render pass where opaque objects are rendered
+/// into a g-buffer.
+/// @deprecated Please use {@link BBMOD_ERenderPass.Deferred} instead.
+/// @see BBMOD_ERenderPass
+#macro BBMOD_RENDER_DEFERRED BBMOD_ERenderPass.Deferred
 
-/// @macro {uint} A flag used to tell that a material is rendered in a separate
-/// forward render pass dedicated to alpha blended objects.
-/// @see RenderPasses.html
-#macro BBMOD_RENDER_ALPHA (1 << 3)
+/// @macro {BBMOD_ERenderPass} Render pass where opaque objects are rendered
+/// into the frame buffer.
+/// @deprecated Please use {@link BBMOD_ERenderPass.Forward} instead.
+/// @see BBMOD_ERenderPass
+#macro BBMOD_RENDER_FORWARD BBMOD_ERenderPass.Forward
+
+/// @macro {BBMOD_ERenderPass} Render pass where alpha-blended objects are
+/// rendered.
+/// @deprecated Please use {@link BBMOD_ERenderPass.Alpha} instead.
+/// @see BBMOD_ERenderPass
+#macro BBMOD_RENDER_ALPHA BBMOD_ERenderPass.Alpha
 
 /// @macro {BBMOD_VertexFormat} The default vertex format for static models.
 /// @see BBMOD_VertexFormat
@@ -62,7 +82,7 @@
 global.__bbmodMaterialCurrent = BBMOD_NONE;
 
 /// @var {real} The current render pass. Its initial value is
-/// {@link BBMOD_RENDER_FORWARD}.
+/// {@link BBMOD_ERenderPass.Forward}.
 /// @example
 /// ```gml
 /// if (global.bbmod_render_pass & BBMOD_RENDER_DEFERRED)
@@ -70,8 +90,8 @@ global.__bbmodMaterialCurrent = BBMOD_NONE;
 ///     // Draw objects to a G-Buffer...
 /// }
 /// ```
-/// @see RenderPasses.html
-global.bbmod_render_pass = BBMOD_RENDER_FORWARD;
+/// BBMOD_ERenderPass
+global.bbmod_render_pass = BBMOD_ERenderPass.Forward;
 
 /// @func bbmod_get_materials()
 /// @desc Retrieves an array of all existing materials, sorted by their priority.
@@ -99,17 +119,17 @@ function BBMOD_Material(_shader=undefined)
 		destroy: destroy,
 	};
 
-	/// @var {uint} Bitwise `OR` between render passes in which is the material
-	/// rendered. Defaults to 0 (no passes).
+	/// @var {uint} Render passes in which is the material rendered. Defaults
+	/// to 0 (no passes).
 	/// @readonly
-	/// @see RenderPasses.html
+	/// @see BBMOD_ERenderPass
 	RenderPass = 0;
 
-	/// @var {ds_map<uint, BBMOD_Shader>} Shaders used in specific render passes.
+	/// @var {BBMOD_Shader[]} Shaders used in specific render passes.
 	/// @private
 	/// @see BBMOD_Material.set_shader
 	/// @see BBMOD_Material.get_shader
-	Shaders = ds_map_create();
+	Shaders = array_create(BBMOD_ERenderPass.SIZE, undefined);
 
 	/// @var {real} The priority of the material. Determines order of materials in
 	/// the array retrieved by {@link bbmod_get_materials} (materials with smaller
@@ -185,7 +205,8 @@ function BBMOD_Material(_shader=undefined)
 	/// @return {BBMOD_Material} Returns `self`.
 	static copy = function (_dest) {
 		_dest.RenderPass = RenderPass;
-		ds_map_copy(_dest.Shaders, Shaders);
+		_dest.Shaders = array_create(BBMOD_ERenderPass.SIZE, undefined);
+		array_copy(_dest.Shaders, 0, Shaders, 0, BBMOD_ERenderPass.SIZE);
 		_dest.OnApply = OnApply;
 		_dest.BlendMode = BlendMode;
 		_dest.Culling = Culling;
@@ -234,7 +255,7 @@ function BBMOD_Material(_shader=undefined)
 	/// @return {bool} Returns `true` if the material was applied.
 	/// @see BBMOD_Material.reset
 	static apply = function () {
-		if ((RenderPass & global.bbmod_render_pass) == 0)
+		if ((RenderPass & (1 << global.bbmod_render_pass)) == 0)
 		{
 			return false;
 		}
@@ -254,7 +275,7 @@ function BBMOD_Material(_shader=undefined)
 			global.__bbmodMaterialCurrent = self;
 		}
 
-		var _shader = Shaders[? global.bbmod_render_pass];
+		var _shader = Shaders[global.bbmod_render_pass];
 		if (BBMOD_SHADER_CURRENT != _shader)
 		{
 			if (BBMOD_SHADER_CURRENT != BBMOD_NONE)
@@ -325,40 +346,38 @@ function BBMOD_Material(_shader=undefined)
 
 	/// @func set_shader(_pass, _shader)
 	/// @desc Defines a shader used in a specific render pass.
-	/// @param {uint} _pass The render pass.
+	/// @param {BBMOD_ERenderPass} _pass The render pass.
 	/// @param {BBMOD_Shader} _shader The shader used in the render pass.
 	/// @return {BBMOD_Material} Returns `self`.
 	/// @see BBMOD_Material.get_shader
-	/// @see RenderPasses.html
+	/// @see BBMOD_ERenderPass
 	static set_shader = function (_pass, _shader) {
 		gml_pragma("forceinline");
-		RenderPass |= _pass;
-		Shaders[? _pass] = _shader;
+		RenderPass |= (1 << _pass);
+		Shaders[_pass] = _shader;
 		return self;
 	};
 
 	/// @func has_shader(_pass)
 	/// @desc Checks whether the material has a shader for the render pass.
+	/// @param {BBMOD_ERenderPass} _pass The render pass.
 	/// @return {bool} Returns `true` if the material has a shader for the
 	/// render pass.
+	/// @see BBMOD_ERenderPass
 	static has_shader = function (_pass) {
 		gml_pragma("forceinline");
-		return ((RenderPass & _pass) != 0);
+		return ((RenderPass & (1 << _pass)) != 0);
 	};
 
 	/// @func get_shader(_pass)
 	/// @desc Retrieves a shader used in a specific render pass.
-	/// @param {uint} _pass The render pass.
+	/// @param {BBMOD_ERenderPass} _pass The render pass.
 	/// @return {BBMOD_Shader/undefined} The shader.
 	/// @see BBMOD_Material.set_shader
-	/// @see RenderPasses.html
+	/// @see BBMOD_ERenderPass
 	static get_shader = function (_pass) {
 		gml_pragma("forceinline");
-		if ((RenderPass & _pass) == 0)
-		{
-			return undefined;
-		}
-		return Shaders[? _pass];
+		return Shaders[_pass];
 	};
 
 	/// @func remove_shader(_pass)
@@ -367,7 +386,8 @@ function BBMOD_Material(_shader=undefined)
 	/// @return {BBMOD_Material} Returns `self`.
 	static remove_shader = function (_pass) {
 		gml_pragma("forceinline");
-		ds_map_delete(Shaders, _pass);
+		RenderPass &= ~(1 << _pass);
+		Shaders[_pass] = undefined;
 		return self;
 	};
 
@@ -440,7 +460,6 @@ function BBMOD_Material(_shader=undefined)
 	static destroy = function () {
 		method(self, Super_Class.destroy)();
 
-		ds_map_destroy(Shaders);
 		ds_list_destroy(RenderCommands);
 
 		if (BaseOpacitySprite != undefined)
