@@ -6,13 +6,15 @@ enum BBMOD_ERenderPass
 	Shadows,
 	/// @member Render pass where opaque objects are rendered into a g-buffer.
 	Deferred,
-	/// @member Render pass where opaque objects are rendered into the frame buffer.
+	/// @member Render pass where opaque objects are rendered into the frame
+	/// buffer.
 	Forward,
 	/// @member Render pass where alpha-blended objects are rendered.
 	Alpha,
 	/// @member Total number of members of this enum.
 	SIZE
 };
+
 
 /// @macro {BBMOD_ERenderPass} Render pass where shadow-casting are objects
 /// rendered into shadow maps.
@@ -37,6 +39,7 @@ enum BBMOD_ERenderPass
 /// @deprecated Please use {@link BBMOD_ERenderPass.Alpha} instead.
 /// @see BBMOD_ERenderPass
 #macro BBMOD_RENDER_ALPHA BBMOD_ERenderPass.Alpha
+
 
 /// @macro {BBMOD_VertexFormat} The default vertex format for static models.
 /// @see BBMOD_VertexFormat
@@ -85,23 +88,94 @@ global.__bbmodMaterialCurrent = BBMOD_NONE;
 /// {@link BBMOD_ERenderPass.Forward}.
 /// @example
 /// ```gml
-/// if (global.bbmod_render_pass & BBMOD_RENDER_DEFERRED)
+/// if (global.bbmod_render_pass & (1 << BBMOD_RENDER_DEFERRED))
 /// {
 ///     // Draw objects to a G-Buffer...
 /// }
 /// ```
-/// BBMOD_ERenderPass
+/// @see BBMOD_ERenderPass
 global.bbmod_render_pass = BBMOD_ERenderPass.Forward;
 
-/// @func bbmod_get_materials()
+global.__bbmodMaterialsAll = [];
+var _materials = array_create(BBMOD_ERenderPass.SIZE);
+for (var i = 0; i < BBMOD_ERenderPass.SIZE; ++i)
+{
+	_materials[i] = [];
+}
+global.__bbmodMaterials = _materials;
+
+/// @func bbmod_get_materials([_pass])
 /// @desc Retrieves an array of all existing materials, sorted by their priority.
 /// Materials with smaller priority come first in the array.
-/// @return {BBMOD_Material[]} A read-only array of all existing materials.
+/// @param {BBMOD_ERenderPass/undefined} [_pass] If defined, then only materials
+/// used in specified render pass will be returned.
+/// @return {BBMOD_Material[]} A read-only array of materials.
 /// @see BBMOD_Material.Priority
-function bbmod_get_materials()
+/// @see BBMOD_ERenderPass
+function bbmod_get_materials(_pass=undefined)
 {
-	static _materials = [];
-	return _materials;
+	gml_pragma("forceinline");
+	if (_pass == undefined)
+	{
+		return global.__bbmodMaterialsAll;
+	}
+	return global.__bbmodMaterials[_pass];
+}
+
+function __bbmod_add_material(_material)
+{
+	gml_pragma("forceinline");
+	array_push(global.__bbmodMaterialsAll, _material);
+	__bbmod_reindex_materials();
+}
+
+function __bbmod_remove_material(_material)
+{
+	gml_pragma("forceinline");
+	for (var i = 0; i < array_length(global.__bbmodMaterialsAll); ++i)
+	{
+		if (global.__bbmodMaterialsAll[i] == _material)
+		{
+			array_delete(global.__bbmodMaterialsAll, i, 1);
+			break;
+		}
+	}
+	__bbmod_reindex_materials();
+}
+
+function __bbmod_sort_materials()
+{
+	gml_pragma("forceinline");
+	__bbmod_reindex_materials();
+}
+
+function __bbmod_reindex_materials()
+{
+	static _sortFn = function (_m1, _m2) {
+		if (_m2.Priority > _m1.Priority) return -1;
+		if (_m2.Priority < _m1.Priority) return +1;
+		return 0;
+	};
+
+	array_sort(global.__bbmodMaterialsAll, _sortFn);
+
+	var _materials = array_create(BBMOD_ERenderPass.SIZE);
+	var _materialCount = array_length(global.__bbmodMaterialsAll);
+
+	for (var _pass = 0; _pass < BBMOD_ERenderPass.SIZE; ++_pass)
+	{
+		_materials[_pass] = [];
+		for (var i = 0; i < _materialCount; ++i)
+		{
+			var _mat = global.__bbmodMaterialsAll[i];
+			if (_mat.has_shader(_pass))
+			{
+				array_push(_materials[_pass], _mat);
+			}
+		}
+	}
+
+	global.__bbmodMaterials = _materials;
 }
 
 /// @func BBMOD_Material([_shader])
@@ -336,11 +410,7 @@ function BBMOD_Material(_shader=undefined)
 	static set_priority = function (_p) {
 		gml_pragma("forceinline");
 		Priority = _p;
-		array_sort(bbmod_get_materials(), function (_m1, _m2) {
-			if (_m2.Priority > _m1.Priority) return -1;
-			if (_m2.Priority < _m1.Priority) return +1;
-			return 0;
-		});
+		__bbmod_sort_materials();
 		return self;
 	};
 
@@ -355,6 +425,7 @@ function BBMOD_Material(_shader=undefined)
 		gml_pragma("forceinline");
 		RenderPass |= (1 << _pass);
 		Shaders[_pass] = _shader;
+		__bbmod_reindex_materials();
 		return self;
 	};
 
@@ -388,6 +459,7 @@ function BBMOD_Material(_shader=undefined)
 		gml_pragma("forceinline");
 		RenderPass &= ~(1 << _pass);
 		Shaders[_pass] = undefined;
+		__bbmod_reindex_materials();
 		return self;
 	};
 
@@ -467,18 +539,7 @@ function BBMOD_Material(_shader=undefined)
 			sprite_delete(BaseOpacitySprite);
 		}
 
-		// Remove from list of materials
-		var _materials = bbmod_get_materials();
-		var i = 0;
-		repeat (array_length(_materials))
-		{
-			if (_materials[i] == self)
-			{
-				array_delete(_materials, i, 1);
-				break;
-			}
-			++i;
-		}
+		__bbmod_remove_material(self);
 	};
 
 	if (_shader != undefined)
@@ -486,11 +547,7 @@ function BBMOD_Material(_shader=undefined)
 		set_shader(BBMOD_RENDER_FORWARD, _shader);
 	}
 
-	var _allMaterials = bbmod_get_materials();
-	array_push(_allMaterials, self);
-	array_sort(_allMaterials, function (_m1, _m2) {
-		return (_m1.Priority - _m2.Priority);
-	});
+	__bbmod_add_material(self);
 }
 
 /// @func bbmod_material_reset()

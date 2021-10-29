@@ -19,8 +19,7 @@ function BBMOD_PBRRenderer()
 
 		bbmod_material_reset();
 
-		var _materials = bbmod_get_materials();
-		var m = 0;
+		var _materials, m;
 
 		// Shadows pass
 		if (DirectionalLight != undefined
@@ -30,6 +29,7 @@ function BBMOD_PBRRenderer()
 			draw_clear(c_red);
 
 			global.bbmod_render_pass = BBMOD_RENDER_SHADOWS;
+			_materials = bbmod_get_materials(global.bbmod_render_pass);
 			m = 0;
 			repeat (array_length(_materials))
 			{
@@ -52,6 +52,7 @@ function BBMOD_PBRRenderer()
 
 		// Forward pass
 		global.bbmod_render_pass = BBMOD_RENDER_FORWARD;
+		_materials = bbmod_get_materials(global.bbmod_render_pass);
 		m = 0;
 		repeat (array_length(_materials))
 		{

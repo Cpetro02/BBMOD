@@ -1,5 +1,3 @@
-event_inherited();
-
 if (z <= 0 && !onGround)
 {
 	var _sound = choose(
