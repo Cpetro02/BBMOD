@@ -445,26 +445,47 @@ float xShadowMapCompare(sampler2D shadowMap, vec2 texel, vec2 uv, float compareZ
 	{
 		return 0.0;
 	}
-	vec2 temp = uv.xy / texel + 0.5;
-	vec2 f = fract(temp);
-	vec2 centroidUV = floor(temp) * texel;
-	vec2 pos = centroidUV;
-	vec3 s = texture2D(shadowMap, pos).rgb;
+
+	vec2 res = 1.0 / texel;
+
+	vec2 st = uv*res - 0.5;
+
+	vec2 iuv = floor(st);
+	vec2 fuv = fract(st);
+
+	vec3 s = texture2D(shadowMap, (iuv+vec2(0.5,0.5))/res).rgb;
 	if (s == vec3(1.0, 0.0, 0.0))
 	{
 		return 0.0;
 	}
-	float lb = step(xDecodeDepth(s), compareZ); // (0,0)
-	pos.y += texel.y;
-	float lt = step(xDecodeDepth(texture2D(shadowMap, pos).rgb), compareZ); // (0,1)
-	pos.x += texel.x;
-	float rt = step(xDecodeDepth(texture2D(shadowMap, pos).rgb), compareZ); // (1,1)
-	pos.y -= texel.y;
-	float rb = step(xDecodeDepth(texture2D(shadowMap, pos).rgb), compareZ); // (1,0)
+
+	float a = (xDecodeDepth(s) < compareZ - 0.002) ? 1.0 : 0.0;
+	float b = (xDecodeDepth(texture2D(shadowMap, (iuv+vec2(1.5,0.5))/res).rgb) < compareZ - 0.002) ? 1.0 : 0.0;
+	float c = (xDecodeDepth(texture2D(shadowMap, (iuv+vec2(0.5,1.5))/res).rgb) < compareZ - 0.002) ? 1.0 : 0.0;
+	float d = (xDecodeDepth(texture2D(shadowMap, (iuv+vec2(1.5,1.5))/res).rgb) < compareZ - 0.002) ? 1.0 : 0.0;
+
 	return mix(
-		mix(lb, lt, f.y),
-		mix(rb, rt, f.y),
-		f.x);
+		mix(a, b, fuv.x),
+		mix(c, d, fuv.x),
+		fuv.y);
+
+	//vec2 temp = uv.xy / texel + 0.5;
+	//vec2 f = fract(temp);
+	//vec2 centroidUV = floor(temp) * texel;
+	//vec2 pos = centroidUV;
+	//vec3 s = texture2D(shadowMap, pos + vec2(0.0, 0.0)).rgb;
+	//if (s == vec3(1.0, 0.0, 0.0))
+	//{
+	//	return 0.0;
+	//}
+	//float lb = step(xDecodeDepth(s), compareZ);
+	//float lt = step(xDecodeDepth(texture2D(shadowMap, pos + vec2(0.0, 1.0)).rgb), compareZ);
+	//float rb = step(xDecodeDepth(texture2D(shadowMap, pos + vec2(1.0, 0.0)).rgb), compareZ);
+	//float rt = step(xDecodeDepth(texture2D(shadowMap, pos + vec2(1.0, 1.0)).rgb), compareZ);
+	//return mix(
+	//	mix(lb, lt, f.x),
+	//	mix(rb, rt, f.x),
+	//	f.y);
 }
 
 /// @source https://learnopengl.com/Advanced-Lighting/Shadows/Shadow-Mapping
@@ -536,7 +557,7 @@ void main()
 	vec3 V = normalize(bbmod_CamPos - v_vVertex);
 	vec3 lightColor = xDiffuseIBL(bbmod_IBL, bbmod_IBLTexel, N);
 
-	float bias = 0.4;
+	float bias = 1.0;
 	vec3 posShadowMap = (bbmod_ShadowmapMatrix * vec4(v_vVertex + N * bias, 1.0)).xyz;
 	posShadowMap.xy = posShadowMap.xy * 0.5 + 0.5;
 	posShadowMap.y = 1.0 - posShadowMap.y;

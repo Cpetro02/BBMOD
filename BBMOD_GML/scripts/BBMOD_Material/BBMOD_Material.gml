@@ -346,7 +346,6 @@ function BBMOD_Material(_shader=undefined)
 			gpu_set_tex_mip_enable(Mipmapping ? mip_on : mip_off);
 			gpu_set_tex_filter(Filtering);
 			gpu_set_tex_repeat(Repeat);
-			global.__bbmodMaterialCurrent = self;
 		}
 
 		var _shader = Shaders[global.bbmod_render_pass];
@@ -356,7 +355,13 @@ function BBMOD_Material(_shader=undefined)
 			{
 				BBMOD_SHADER_CURRENT.reset();
 			}
-			_shader.set().set_material(self);
+			_shader.set();
+		}
+
+		if (global.__bbmodMaterialCurrent != self)
+		{
+			_shader.set_material(self);
+			global.__bbmodMaterialCurrent = self;
 		}
 
 		if (OnApply != undefined)
@@ -492,9 +497,15 @@ function BBMOD_Material(_shader=undefined)
 	static submit_queue = function () {
 		var _matWorld = matrix_get(matrix_world);
 		var i = 0;
-		repeat (ds_list_size(RenderCommands))
+
+		var _shaderCurrent = BBMOD_SHADER_CURRENT;
+		var _setBones = method(_shaderCurrent, _shaderCurrent.set_bones);
+		var _setData = method(_shaderCurrent, _shaderCurrent.set_batch_data);
+		var _renderCommands = RenderCommands;
+
+		repeat (ds_list_size(_renderCommands))
 		{
-			var _command = RenderCommands[| i++];
+			var _command = _renderCommands[| i++];
 
 			var _matrix = _command.Matrix;
 			if (!array_equals(_matWorld, _matrix))
@@ -506,13 +517,13 @@ function BBMOD_Material(_shader=undefined)
 			var _transform = _command.BoneTransform;
 			if (_transform != undefined)
 			{
-				BBMOD_SHADER_CURRENT.set_bones(_transform);
+				_setBones(_transform);
 			}
 
 			var _data = _command.BatchData;
 			if (_data != undefined)
 			{
-				BBMOD_SHADER_CURRENT.set_batch_data(_data);
+				_setData(_data);
 			}
 
 			vertex_submit(_command.VertexBuffer, pr_trianglelist, _command.Texture);
