@@ -23,6 +23,7 @@ function __bbmod_material_pbr()
 	{
 		_material = new BBMOD_PBRMaterial(BBMOD_SHADER_PBR);
 		_material.set_shader(BBMOD_RENDER_SHADOWS, BBMOD_SHADER_SHADOWMAP);
+		_material.set_shader(BBMOD_RENDER_DEFERRED, BBMOD_SHADER_GBUFFER);
 	}
 	return _material;
 }
@@ -34,6 +35,7 @@ function __bbmod_material_pbr_animated()
 	{
 		_material = new BBMOD_PBRMaterial(BBMOD_SHADER_PBR_ANIMATED);
 		_material.set_shader(BBMOD_RENDER_SHADOWS, BBMOD_SHADER_SHADOWMAP_ANIMATED);
+		_material.set_shader(BBMOD_RENDER_DEFERRED, BBMOD_SHADER_GBUFFER_ANIMATED);
 	}
 	return _material;
 }
@@ -45,6 +47,7 @@ function __bbmod_material_pbr_batched()
 	{
 		_material = new BBMOD_PBRMaterial(BBMOD_SHADER_PBR_BATCHED);
 		_material.set_shader(BBMOD_RENDER_SHADOWS, BBMOD_SHADER_SHADOWMAP_BATCHED);
+		_material.set_shader(BBMOD_RENDER_DEFERRED, BBMOD_SHADER_GBUFFER_BATCHED);
 	}
 	return _material;
 }

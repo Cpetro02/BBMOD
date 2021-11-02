@@ -1,4 +1,7 @@
-#pragma include("BRDF.xsh")
+// #pragma include("BRDF.xsh")
+#ifndef X_F0_DEFAULT
+#define X_F0_DEFAULT Vec3(0.04, 0.04, 0.04)
+#endif
 #pragma include("Color.xsh")
 #pragma include("RGBM.xsh")
 

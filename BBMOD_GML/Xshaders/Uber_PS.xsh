@@ -4,7 +4,7 @@ varying vec2 v_vTexCoord;
 varying mat3 v_mTBN;
 varying float v_fDepth;
 
-#if PBR
+#if PBR || GBUFFER
 // RGB: Base color, A: Opacity
 #define bbmod_BaseOpacity gm_BaseTexture
 
@@ -46,9 +46,13 @@ uniform vec2 bbmod_ShadowmapTexel;
 uniform float bbmod_AlphaTest;
 
 // TODO: Fix Xpanda's include
-// #if OUTPUT_DEPTH
+#if OUTPUT_DEPTH || PBR
 #pragma include("DepthEncoding.xsh", "glsl")
-// #endif
+#endif
+
+#if PBR || GBUFFER
+#pragma include("Material.xsh", "glsl")
+#endif
 
 #if PBR
 #pragma include("BRDF.xsh", "glsl")
@@ -63,9 +67,11 @@ uniform float bbmod_AlphaTest;
 
 #pragma include("CheapSubsurface.xsh", "glsl")
 
-#pragma include("Material.xsh", "glsl")
-
 #pragma include("ShadowMapping.xsh", "glsl")
+#endif
+
+#if GBUFFER
+#pragma include("EncodeDepth20Normal12.xsh", "glsl")
 #endif
 
 void main()
@@ -90,7 +96,7 @@ void main()
 	vec3 V = normalize(bbmod_CamPos - v_vVertex);
 	vec3 lightColor = xDiffuseIBL(bbmod_IBL, bbmod_IBLTexel, N);
 
-	float bias = 0.4;
+	float bias = 1.0;
 	vec3 posShadowMap = (bbmod_ShadowmapMatrix * vec4(v_vVertex + N * bias, 1.0)).xyz;
 	posShadowMap.xy = posShadowMap.xy * 0.5 + 0.5;
 	posShadowMap.y = 1.0 - posShadowMap.y;
@@ -123,6 +129,17 @@ void main()
 	#if OUTPUT_DEPTH
 	gl_FragColor.rgb = xEncodeDepth(v_fDepth);
 	gl_FragColor.a = 1.0;
+	#elif GBUFFER
+	Material material = UnpackMaterial(
+		bbmod_BaseOpacity,
+		bbmod_NormalRoughness,
+		bbmod_MetallicAO,
+		bbmod_Subsurface,
+		bbmod_Emissive,
+		v_mTBN,
+		v_vTexCoord);
+	vec3 N = material.Normal;
+	gl_FragColor = xEncodeDepth20Normal12(v_fDepth, N);
 	#else
 	gl_FragColor = baseOpacity;
 	#endif

@@ -114,6 +114,7 @@ renderer = new BBMOD_PBRRenderer()
 
 renderer.UseAppSurface = true;
 renderer.RenderScale = 2;
+renderer.GBuffer = true;
 
 var _lightSun = new BBMOD_DirectionalLight();
 _lightSun.CastShadows = true;

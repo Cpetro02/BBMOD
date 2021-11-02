@@ -45,7 +45,6 @@ uniform vec2 bbmod_ShadowmapTexel;
 uniform float bbmod_AlphaTest;
 
 // TODO: Fix Xpanda's include
-// #if 0
 /// @param d Linearized depth to encode.
 /// @return Encoded depth.
 /// @source http://aras-p.info/blog/2009/07/30/encoding-floats-to-rgba-the-final/
@@ -72,7 +71,101 @@ float xDecodeDepth(vec3 c)
 	const float inv255 = 1.0 / 255.0;
 	return c.x + (c.y * inv255) + (c.z * inv255 * inv255);
 }
-// #endif
+
+// #pragma include("BRDF.xsh")
+#ifndef X_F0_DEFAULT
+#define X_F0_DEFAULT vec3(0.04, 0.04, 0.04)
+#endif
+#define X_GAMMA 2.2
+
+/// @desc Converts gamma space color to linear space.
+vec3 xGammaToLinear(vec3 rgb)
+{
+	return pow(rgb, vec3(X_GAMMA));
+}
+
+/// @desc Converts linear space color to gamma space.
+vec3 xLinearToGamma(vec3 rgb)
+{
+	return pow(rgb, vec3(1.0 / X_GAMMA));
+}
+
+/// @desc Gets color's luminance.
+float xLuminance(vec3 rgb)
+{
+	return (0.2126 * rgb.r + 0.7152 * rgb.g + 0.0722 * rgb.b);
+}
+/// @note Input color should be in gamma space.
+/// @source https://graphicrants.blogspot.cz/2009/04/rgbm-color-encoding.html
+vec4 xEncodeRGBM(vec3 color)
+{
+	vec4 rgbm;
+	color *= 1.0 / 6.0;
+	rgbm.a = clamp(max(max(color.r, color.g), max(color.b, 0.000001)), 0.0, 1.0);
+	rgbm.a = ceil(rgbm.a * 255.0) / 255.0;
+	rgbm.rgb = color / rgbm.a;
+	return rgbm;
+}
+
+/// @source https://graphicrants.blogspot.cz/2009/04/rgbm-color-encoding.html
+vec3 xDecodeRGBM(vec4 rgbm)
+{
+	return 6.0 * rgbm.rgb * rgbm.a;
+}
+
+struct Material
+{
+	vec3 Base;
+	float Opacity;
+	vec3 Normal;
+	float Roughness;
+	float Metallic;
+	float AO;
+	vec4 Subsurface;
+	vec3 Emissive;
+	vec3 Specular;
+};
+
+Material UnpackMaterial(
+	sampler2D texBaseOpacity,
+	sampler2D texNormalRoughness,
+	sampler2D texMetallicAO,
+	sampler2D texSubsurface,
+	sampler2D texEmissive,
+	mat3 tbn,
+	vec2 uv)
+{
+	vec4 baseOpacity = texture2D(texBaseOpacity, uv);
+	vec3 base = xGammaToLinear(baseOpacity.rgb);
+	float opacity = baseOpacity.a;
+
+	vec4 normalRoughness = texture2D(texNormalRoughness, uv);
+	vec3 normal = normalize(tbn * (normalRoughness.rgb * 2.0 - 1.0));
+	float roughness = mix(0.1, 0.9, normalRoughness.a);
+
+	vec4 metallicAO = texture2D(texMetallicAO, uv);
+	float metallic = metallicAO.r;
+	float AO = metallicAO.g;
+
+	vec4 subsurface = texture2D(texSubsurface, uv);
+	subsurface.rgb = xGammaToLinear(subsurface.rgb);
+
+	vec3 emissive = xGammaToLinear(xDecodeRGBM(texture2D(texEmissive, uv)));
+
+	vec3 specular = mix(X_F0_DEFAULT, base, metallic);
+	base *= (1.0 - metallic);
+
+	return Material(
+		base,
+		opacity,
+		normal,
+		roughness,
+		metallic,
+		AO,
+		subsurface,
+		emissive,
+		specular);
+}
 
 #define X_PI   3.14159265359
 #define X_2_PI 6.28318530718
@@ -186,43 +279,7 @@ vec3 xOctahedronUvToVec3Normalized(vec2 uv)
 	return position;
 }
 
-/// @note Input color should be in gamma space.
-/// @source https://graphicrants.blogspot.cz/2009/04/rgbm-color-encoding.html
-vec4 xEncodeRGBM(vec3 color)
-{
-	vec4 rgbm;
-	color *= 1.0 / 6.0;
-	rgbm.a = clamp(max(max(color.r, color.g), max(color.b, 0.000001)), 0.0, 1.0);
-	rgbm.a = ceil(rgbm.a * 255.0) / 255.0;
-	rgbm.rgb = color / rgbm.a;
-	return rgbm;
-}
 
-/// @source https://graphicrants.blogspot.cz/2009/04/rgbm-color-encoding.html
-vec3 xDecodeRGBM(vec4 rgbm)
-{
-	return 6.0 * rgbm.rgb * rgbm.a;
-}
-
-#define X_GAMMA 2.2
-
-/// @desc Converts gamma space color to linear space.
-vec3 xGammaToLinear(vec3 rgb)
-{
-	return pow(rgb, vec3(X_GAMMA));
-}
-
-/// @desc Converts linear space color to gamma space.
-vec3 xLinearToGamma(vec3 rgb)
-{
-	return pow(rgb, vec3(1.0 / X_GAMMA));
-}
-
-/// @desc Gets color's luminance.
-float xLuminance(vec3 rgb)
-{
-	return (0.2126 * rgb.r + 0.7152 * rgb.g + 0.0722 * rgb.b);
-}
 
 vec3 xDiffuseIBL(sampler2D ibl, vec2 texel, vec3 N)
 {
@@ -274,61 +331,6 @@ vec3 xCheapSubsurface(vec4 subsurface, vec3 eye, vec3 normal, vec3 light, vec3 l
 	float fLTDot = pow(clamp(dot(eye, -vLTLight), 0.0, 1.0), fLTPower) * fLTScale;
 	float fLT = fLTDot * subsurface.a;
 	return subsurface.rgb * lightColor * fLT;
-}
-
-
-struct Material
-{
-	vec3 Base;
-	float Opacity;
-	vec3 Normal;
-	float Roughness;
-	float Metallic;
-	float AO;
-	vec4 Subsurface;
-	vec3 Emissive;
-	vec3 Specular;
-};
-
-Material UnpackMaterial(
-	sampler2D texBaseOpacity,
-	sampler2D texNormalRoughness,
-	sampler2D texMetallicAO,
-	sampler2D texSubsurface,
-	sampler2D texEmissive,
-	mat3 tbn,
-	vec2 uv)
-{
-	vec4 baseOpacity = texture2D(texBaseOpacity, uv);
-	vec3 base = xGammaToLinear(baseOpacity.rgb);
-	float opacity = baseOpacity.a;
-
-	vec4 normalRoughness = texture2D(texNormalRoughness, uv);
-	vec3 normal = normalize(tbn * (normalRoughness.rgb * 2.0 - 1.0));
-	float roughness = mix(0.1, 0.9, normalRoughness.a);
-
-	vec4 metallicAO = texture2D(texMetallicAO, uv);
-	float metallic = metallicAO.r;
-	float AO = metallicAO.g;
-
-	vec4 subsurface = texture2D(texSubsurface, uv);
-	subsurface.rgb = xGammaToLinear(subsurface.rgb);
-
-	vec3 emissive = xGammaToLinear(xDecodeRGBM(texture2D(texEmissive, uv)));
-
-	vec3 specular = mix(X_F0_DEFAULT, base, metallic);
-	base *= (1.0 - metallic);
-
-	return Material(
-		base,
-		opacity,
-		normal,
-		roughness,
-		metallic,
-		AO,
-		subsurface,
-		emissive,
-		specular);
 }
 
 #define X_CUBEMAP_POS_X 0
@@ -437,7 +439,7 @@ vec3 xCubeUvToVec3Normalized(vec2 uv, int cubeSide)
 	return vec3(0.0, 0.0, 0.0);
 }
 
-/// @source http://codeflow.org/entries/2013/feb/15/soft-shadow-mapping/
+/// @source https://iquilezles.org/www/articles/hwinterpolation/hwinterpolation.htm
 float xShadowMapCompare(sampler2D shadowMap, vec2 texel, vec2 uv, float compareZ)
 {
 	if (uv.x < 0.0 || uv.y < 0.0
@@ -445,26 +447,23 @@ float xShadowMapCompare(sampler2D shadowMap, vec2 texel, vec2 uv, float compareZ
 	{
 		return 0.0;
 	}
-	vec2 temp = uv.xy / texel + 0.5;
-	vec2 f = fract(temp);
-	vec2 centroidUV = floor(temp) * texel;
-	vec2 pos = centroidUV;
-	vec3 s = texture2D(shadowMap, pos).rgb;
+	vec2 res = 1.0 / texel;
+	vec2 st = uv*res - 0.5;
+	vec2 iuv = floor(st);
+	vec2 fuv = fract(st);
+	vec3 s = texture2D(shadowMap, (iuv+vec2(0.5,0.5))/res).rgb;
 	if (s == vec3(1.0, 0.0, 0.0))
 	{
 		return 0.0;
 	}
-	float lb = step(xDecodeDepth(s), compareZ); // (0,0)
-	pos.y += texel.y;
-	float lt = step(xDecodeDepth(texture2D(shadowMap, pos).rgb), compareZ); // (0,1)
-	pos.x += texel.x;
-	float rt = step(xDecodeDepth(texture2D(shadowMap, pos).rgb), compareZ); // (1,1)
-	pos.y -= texel.y;
-	float rb = step(xDecodeDepth(texture2D(shadowMap, pos).rgb), compareZ); // (1,0)
+	float a = (xDecodeDepth(s) < compareZ - 0.002) ? 1.0 : 0.0;
+	float b = (xDecodeDepth(texture2D(shadowMap, (iuv+vec2(1.5,0.5))/res).rgb) < compareZ - 0.002) ? 1.0 : 0.0;
+	float c = (xDecodeDepth(texture2D(shadowMap, (iuv+vec2(0.5,1.5))/res).rgb) < compareZ - 0.002) ? 1.0 : 0.0;
+	float d = (xDecodeDepth(texture2D(shadowMap, (iuv+vec2(1.5,1.5))/res).rgb) < compareZ - 0.002) ? 1.0 : 0.0;
 	return mix(
-		mix(lb, lt, f.y),
-		mix(rb, rt, f.y),
-		f.x);
+		mix(a, b, fuv.x),
+		mix(c, d, fuv.x),
+		fuv.y);
 }
 
 /// @source https://learnopengl.com/Advanced-Lighting/Shadows/Shadow-Mapping
@@ -515,6 +514,7 @@ float xShadowMapPCFCube(sampler2D shadowMap, vec2 texel, vec3 dir, float compare
 	return (shadow / 20.0);
 }
 
+
 void main()
 {
 	Material material = UnpackMaterial(
@@ -536,7 +536,7 @@ void main()
 	vec3 V = normalize(bbmod_CamPos - v_vVertex);
 	vec3 lightColor = xDiffuseIBL(bbmod_IBL, bbmod_IBLTexel, N);
 
-	float bias = 0.4;
+	float bias = 1.0;
 	vec3 posShadowMap = (bbmod_ShadowmapMatrix * vec4(v_vVertex + N * bias, 1.0)).xyz;
 	posShadowMap.xy = posShadowMap.xy * 0.5 + 0.5;
 	posShadowMap.y = 1.0 - posShadowMap.y;

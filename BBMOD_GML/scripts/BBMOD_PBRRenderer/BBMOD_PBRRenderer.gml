@@ -3,6 +3,13 @@
 function BBMOD_PBRRenderer()
 	: BBMOD_Renderer() constructor
 {
+	/// @var {bool}
+	GBuffer = true;
+
+	/// @var {surface}
+	/// @private
+	SurGBuffer = noone;
+
 	static render = function () {
 		var _world = matrix_get(matrix_world);
 		var _view = matrix_get(matrix_view);
@@ -61,6 +68,55 @@ function BBMOD_PBRRenderer()
 			_directionalLight.reset_target();
 
 			// Reset to the current camera's matrices
+			matrix_set(matrix_view, _view);
+			matrix_set(matrix_projection, _projection);
+		}
+
+		// G-buffer pass
+		if (GBuffer)
+		{
+			var _target = surface_get_target();
+			var _width = surface_get_width(_target);
+			var _height = surface_get_height(_target);
+			SurGBuffer = bbmod_surface_check(SurGBuffer, _width, _height);
+			surface_set_target(SurGBuffer);
+			draw_clear_alpha(0, 0);
+			gpu_set_blendenable(false);
+			matrix_set(matrix_view, _view);
+			matrix_set(matrix_projection, _projection);
+
+			global.bbmod_render_pass = BBMOD_ERenderPass.Deferred;
+			_materials = bbmod_get_materials(global.bbmod_render_pass);
+			m = 0;
+			repeat (array_length(_materials))
+			{
+				var _material = _materials[m++];
+	
+				if (!_material.has_commands()
+					|| !_material.apply())
+				{
+					continue;
+				}
+
+				if (_directionalLightCastShadows)
+				{
+					try
+					{
+						BBMOD_SHADER_CURRENT.set_shadowmap(
+							_directionalLightTexture,
+							_directionalLightMatrix);
+					}
+					catch (_ignore)
+					{
+					}
+				}
+
+				_material.submit_queue();
+			}
+
+			gpu_set_blendenable(true);
+			surface_reset_target();
+
 			matrix_set(matrix_view, _view);
 			matrix_set(matrix_projection, _projection);
 		}

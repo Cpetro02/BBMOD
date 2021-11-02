@@ -2,11 +2,11 @@
   "isDnD": false,
   "isCompatibility": false,
   "parent": {
-    "name": "EntityComponent",
-    "path": "folders/_Concepts/EntityComponent.yy",
+    "name": "GBuffer",
+    "path": "folders/BBMOD/GBuffer.yy",
   },
   "resourceVersion": "1.0",
-  "name": "BBMOD_Component",
+  "name": "bbmod_gbuffer",
   "tags": [],
   "resourceType": "GMScript",
 }
