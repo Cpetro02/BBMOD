@@ -1,5 +1,9 @@
 #pragma include("Uber_VS.xsh", "glsl")
+#define MUL(m, v) ((m) * (v))
+#define IVec4 ivec4
+
 #define MAX_BONES 64
+
 
 attribute vec4 in_Position;
 attribute vec3 in_Normal;
@@ -10,6 +14,8 @@ attribute vec4 in_TangentW;
 attribute vec4 in_BoneIndex;
 attribute vec4 in_BoneWeight;
 
+
+
 varying vec3 v_vVertex;
 //varying vec4 v_vColor;
 varying vec2 v_vTexCoord;
@@ -17,9 +23,11 @@ varying mat3 v_mTBN;
 varying float v_fDepth;
 
 uniform vec2 bbmod_TextureOffset;
+
 uniform vec2 bbmod_TextureScale;
 
 uniform vec4 bbmod_Bones[2 * MAX_BONES];
+
 
 vec3 xQuaternionRotate(vec4 q, vec3 v)
 {
@@ -32,13 +40,14 @@ vec3 xDualQuaternionTransform(vec4 real, vec4 dual, vec3 v)
 		+ 2.0 * (real.w * dual.xyz - dual.w * real.xyz + cross(real.xyz, dual.xyz)));
 }
 
+
 void main()
 {
 	// Source:
 	// https://www.cs.utah.edu/~ladislav/kavan07skinning/kavan07skinning.pdf
 	// https://www.cs.utah.edu/~ladislav/dq/dqs.cg
-	ivec4 i = ivec4(in_BoneIndex) * 2;
-	ivec4 j = i + 1;
+	IVec4 i = IVec4(in_BoneIndex) * 2;
+	IVec4 j = i + 1;
 
 	vec4 real0 = bbmod_Bones[i.x];
 	vec4 real1 = bbmod_Bones[i.y];
@@ -73,17 +82,17 @@ void main()
 	vec4 position = vec4(xDualQuaternionTransform(blendReal, blendDual, in_Position.xyz), 1.0);
 	vec4 normal = vec4(xQuaternionRotate(blendReal, in_Normal), 0.0);
 
-	gl_Position = gm_Matrices[MATRIX_WORLD_VIEW_PROJECTION] * position;
+	gl_Position = MUL(gm_Matrices[MATRIX_WORLD_VIEW_PROJECTION], position);
 	v_fDepth = gl_Position.z;
-	v_vVertex = (gm_Matrices[MATRIX_WORLD] * position).xyz;
+	v_vVertex = MUL(gm_Matrices[MATRIX_WORLD], position).xyz;
 	//v_vColor = in_Color;
 	v_vTexCoord = bbmod_TextureOffset + in_TextureCoord0 * bbmod_TextureScale;
 
 	vec4 tangent = vec4(in_TangentW.xyz, 0.0);
 	vec4 bitangent = vec4(cross(in_Normal, in_TangentW.xyz) * in_TangentW.w, 0.0);
-	vec3 N = (gm_Matrices[MATRIX_WORLD] * normal).xyz;
-	vec3 T = (gm_Matrices[MATRIX_WORLD] * tangent).xyz;
-	vec3 B = (gm_Matrices[MATRIX_WORLD] * bitangent).xyz;
+	vec3 N = MUL(gm_Matrices[MATRIX_WORLD], normal).xyz;
+	vec3 T = MUL(gm_Matrices[MATRIX_WORLD], tangent).xyz;
+	vec3 B = MUL(gm_Matrices[MATRIX_WORLD], bitangent).xyz;
 	v_mTBN = mat3(T, B, N);
 }
 // include("Uber_VS.xsh")

@@ -1,78 +1,13 @@
-varying vec3 v_vVertex;
-//varying vec4 v_vColor;
-varying vec2 v_vTexCoord;
-varying mat3 v_mTBN;
-varying float v_fDepth;
+#pragma include("Compatibility.xsh")
 
-#if PBR || GBUFFER
-// RGB: Base color, A: Opacity
-#define bbmod_BaseOpacity gm_BaseTexture
+#pragma include("Output_VS.xsh")
 
-// RGB: Tangent space normal, A: Roughness
-uniform sampler2D bbmod_NormalRoughness;
+#pragma include("Output_PS.xsh")
 
-// R: Metallic, G: Ambient occlusion
-uniform sampler2D bbmod_MetallicAO;
+#pragma include("Uniforms_PS.xsh")
 
-// RGB: Subsurface color, A: Intensity
-uniform sampler2D bbmod_Subsurface;
+#pragma include("Includes_PS.xsh")
 
-// RGBM encoded emissive color
-uniform sampler2D bbmod_Emissive;
-
-// Prefiltered octahedron env. map
-uniform sampler2D bbmod_IBL;
-
-// Texel size of one octahedron.
-uniform vec2 bbmod_IBLTexel;
-
-// Preintegrated env. BRDF
-uniform sampler2D bbmod_BRDF;
-
-// Camera's position in world space
-uniform vec3 bbmod_CamPos;
-
-// Camera's exposure value
-uniform float bbmod_Exposure;
-
-uniform sampler2D bbmod_Shadowmap;
-
-uniform mat4 bbmod_ShadowmapMatrix;
-
-uniform vec2 bbmod_ShadowmapTexel;
-#endif
-
-// Pixels with alpha less than this value will be discarded.
-uniform float bbmod_AlphaTest;
-
-// TODO: Fix Xpanda's include
-#if OUTPUT_DEPTH || PBR
-#pragma include("DepthEncoding.xsh", "glsl")
-#endif
-
-#if PBR || GBUFFER
-#pragma include("Material.xsh", "glsl")
-#endif
-
-#if PBR
-#pragma include("BRDF.xsh", "glsl")
-
-#pragma include("OctahedronMapping.xsh", "glsl")
-
-#pragma include("RGBM.xsh", "glsl")
-
-#pragma include("IBL.xsh")
-
-#pragma include("Color.xsh", "glsl")
-
-#pragma include("CheapSubsurface.xsh", "glsl")
-
-#pragma include("ShadowMapping.xsh", "glsl")
-#endif
-
-#if GBUFFER
-#pragma include("EncodeDepth20Normal12.xsh", "glsl")
-#endif
 
 void main()
 {

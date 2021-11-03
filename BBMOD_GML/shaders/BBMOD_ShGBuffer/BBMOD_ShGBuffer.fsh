@@ -1,9 +1,13 @@
 #pragma include("Uber_PS.xsh", "glsl")
+#define MUL(m, v) ((m) * (v))
+#define IVec4 ivec4
+
 varying vec3 v_vVertex;
 //varying vec4 v_vColor;
 varying vec2 v_vTexCoord;
 varying mat3 v_mTBN;
 varying float v_fDepth;
+
 
 // RGB: Base color, A: Opacity
 #define bbmod_BaseOpacity gm_BaseTexture
@@ -44,7 +48,6 @@ uniform vec2 bbmod_ShadowmapTexel;
 // Pixels with alpha less than this value will be discarded.
 uniform float bbmod_AlphaTest;
 
-// TODO: Fix Xpanda's include
 
 // #pragma include("BRDF.xsh")
 #ifndef X_F0_DEFAULT
@@ -114,7 +117,7 @@ Material UnpackMaterial(
 	float opacity = baseOpacity.a;
 
 	vec4 normalRoughness = texture2D(texNormalRoughness, uv);
-	vec3 normal = normalize(tbn * (normalRoughness.rgb * 2.0 - 1.0));
+	vec3 normal = normalize(MUL(tbn, normalRoughness.rgb * 2.0 - 1.0));
 	float roughness = mix(0.1, 0.9, normalRoughness.a);
 
 	vec4 metallicAO = texture2D(texMetallicAO, uv);
@@ -211,6 +214,7 @@ vec4 xEncodeDepth20Normal12(float depth, vec3 N)
 
 	return enc;
 }
+
 
 void main()
 {

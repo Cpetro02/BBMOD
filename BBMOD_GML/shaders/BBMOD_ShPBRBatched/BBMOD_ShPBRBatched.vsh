@@ -1,4 +1,8 @@
 #pragma include("Uber_VS.xsh", "glsl")
+#define MUL(m, v) ((m) * (v))
+#define IVec4 ivec4
+
+
 #define MAX_BATCH_DATA_SIZE 128
 
 attribute vec4 in_Position;
@@ -7,7 +11,9 @@ attribute vec2 in_TextureCoord0;
 //attribute vec4 in_Color;
 attribute vec4 in_TangentW;
 
+
 attribute float in_Id;
+
 
 varying vec3 v_vVertex;
 //varying vec4 v_vColor;
@@ -16,7 +22,9 @@ varying mat3 v_mTBN;
 varying float v_fDepth;
 
 uniform vec2 bbmod_TextureOffset;
+
 uniform vec2 bbmod_TextureScale;
+
 
 uniform vec4 bbmod_BatchData[MAX_BATCH_DATA_SIZE];
 
@@ -57,6 +65,7 @@ vec4 xQuaternionRotate(vec4 q, vec4 v)
 	return rot;
 }
 
+
 void main()
 {
 	int idx = int(in_Id) * 2;
@@ -66,17 +75,17 @@ void main()
 	vec4 normal = vec4(in_Normal, 0.0);
 	normal = xQuaternionRotate(rot, normal);
 
-	gl_Position = gm_Matrices[MATRIX_WORLD_VIEW_PROJECTION] * position;
+	gl_Position = MUL(gm_Matrices[MATRIX_WORLD_VIEW_PROJECTION], position);
 	v_fDepth = gl_Position.z;
-	v_vVertex = (gm_Matrices[MATRIX_WORLD] * position).xyz;
+	v_vVertex = MUL(gm_Matrices[MATRIX_WORLD], position).xyz;
 	//v_vColor = in_Color;
 	v_vTexCoord = bbmod_TextureOffset + in_TextureCoord0 * bbmod_TextureScale;
 
 	vec4 tangent = vec4(in_TangentW.xyz, 0.0);
 	vec4 bitangent = vec4(cross(in_Normal, in_TangentW.xyz) * in_TangentW.w, 0.0);
-	vec3 N = (gm_Matrices[MATRIX_WORLD] * normal).xyz;
-	vec3 T = (gm_Matrices[MATRIX_WORLD] * tangent).xyz;
-	vec3 B = (gm_Matrices[MATRIX_WORLD] * bitangent).xyz;
+	vec3 N = MUL(gm_Matrices[MATRIX_WORLD], normal).xyz;
+	vec3 T = MUL(gm_Matrices[MATRIX_WORLD], tangent).xyz;
+	vec3 B = MUL(gm_Matrices[MATRIX_WORLD], bitangent).xyz;
 	v_mTBN = mat3(T, B, N);
 }
 // include("Uber_VS.xsh")

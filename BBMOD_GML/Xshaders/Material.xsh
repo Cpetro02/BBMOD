@@ -1,3 +1,4 @@
+#pragma include("Compatibility.xsh")
 // #pragma include("BRDF.xsh")
 #ifndef X_F0_DEFAULT
 #define X_F0_DEFAULT Vec3(0.04, 0.04, 0.04)
@@ -32,11 +33,7 @@ Material UnpackMaterial(
 	float opacity = baseOpacity.a;
 
 	Vec4 normalRoughness = Sample(texNormalRoughness, uv);
-#if XGLSL
-	vec3 normal = normalize(tbn * (normalRoughness.rgb * 2.0 - 1.0));
-#else
-	float3 normal = mul(normalRoughness.rgb * 2.0 - 1.0, tbn);
-#endif
+	Vec3 normal = normalize(MUL(tbn, normalRoughness.rgb * 2.0 - 1.0));
 	float roughness = Lerp(0.1, 0.9, normalRoughness.a);
 
 	Vec4 metallicAO = Sample(texMetallicAO, uv);
