@@ -1,5 +1,6 @@
 #pragma once
 
+#include <BBMOD/common.hpp>
 #include <BBMOD/Config.hpp>
 #include <BBMOD/VertexFormat.hpp>
 #include <BBMOD/Vector2.hpp>
@@ -47,7 +48,7 @@ struct SMesh
 
 	SVertexFormat* VertexFormat = nullptr;
 
-	size_t MaterialIndex = 0;
+	uint32_t MaterialIndex = 0;
 
 	std::vector<SVertex*> Data;
 };

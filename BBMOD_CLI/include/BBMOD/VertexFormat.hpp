@@ -1,5 +1,6 @@
 #pragma once
 
+#include <BBMOD/common.hpp>
 #include <fstream>
 
 struct SVertexFormat

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <BBMOD/common.hpp>
 
 #include <cmath> 
 #define _USE_MATH_DEFINES

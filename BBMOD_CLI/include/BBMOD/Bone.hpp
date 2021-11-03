@@ -1,5 +1,6 @@
 #pragma once
 
+#include <BBMOD/common.hpp>
 #include <BBMOD/DualQuaternion.hpp>
 
 #include <string>

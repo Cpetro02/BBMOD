@@ -1,5 +1,6 @@
 #pragma once
 
+#include <BBMOD/common.hpp>
 #include <BBMOD/DualQuaternion.hpp>
 
 #include <string>
@@ -26,7 +27,7 @@ struct SNode
 
 	dual_quat_t Transform;
 
-	std::vector<size_t> Meshes;
+	std::vector<uint32_t> Meshes;
 
 	std::vector<SNode*> Children;
 };

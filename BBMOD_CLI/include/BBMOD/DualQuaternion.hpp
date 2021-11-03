@@ -1,5 +1,6 @@
 #pragma once
 
+#include <BBMOD/common.hpp>
 #include <BBMOD/Math.hpp>
 #include <BBMOD/Quaternion.hpp>
 #include <BBMOD/Vector3.hpp>
@@ -41,7 +42,7 @@ static inline void dual_quaternion_from_translation_rotation(dual_quat_t q, cons
 	quaternion_scale(dual, 0.5f);
 }
 
-static inline void dual_quaternion_multiply(dual_quat_t _dq1, dual_quat_t _dq2, dual_quat_t _out, size_t _outIndex)
+static inline void dual_quaternion_multiply(dual_quat_t _dq1, dual_quat_t _dq2, dual_quat_t _out, uint32_t _outIndex)
 {
 	float _dq1r0 = _dq1[0];
 	float _dq1r1 = _dq1[1];

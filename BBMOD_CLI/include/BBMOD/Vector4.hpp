@@ -1,5 +1,6 @@
 #pragma once
 
+#include <BBMOD/common.hpp>
 #include <cstring>
 
 typedef float vec4_t[4];

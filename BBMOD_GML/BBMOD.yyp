@@ -226,10 +226,10 @@
     {"CopyToMask":-1,"filePath":"datafiles/Data/BBMOD/Skies","resourceVersion":"1.0","name":"Sky-10.png","resourceType":"GMIncludedFile",},
     {"CopyToMask":-1,"filePath":"datafiles/Data/BBMOD/Skies","resourceVersion":"1.0","name":"Sky+90.png","resourceType":"GMIncludedFile",},
     {"CopyToMask":-1,"filePath":"datafiles/Data/BBMOD","resourceVersion":"1.0","name":"BBMOD.exe","resourceType":"GMIncludedFile",},
-    {"CopyToMask":-1,"filePath":"datafiles/Data/BBMOD","resourceVersion":"1.0","name":"assimp-vc140-mt.dll","resourceType":"GMIncludedFile",},
     {"CopyToMask":-1,"filePath":"datafiles/Data/BBMOD","resourceVersion":"1.0","name":"LICENSE","resourceType":"GMIncludedFile",},
     {"CopyToMask":-1,"filePath":"datafiles/Data/BBMOD","resourceVersion":"1.0","name":"BBMOD.dll","resourceType":"GMIncludedFile",},
     {"CopyToMask":-1,"filePath":"datafiles/Data/Assets","resourceVersion":"1.0","name":"Plane.obj","resourceType":"GMIncludedFile",},
+    {"CopyToMask":-1,"filePath":"datafiles/Data/BBMOD","resourceVersion":"1.0","name":"assimp-vc142-mt.dll","resourceType":"GMIncludedFile",},
   ],
   "MetaData": {
     "IDEVersion": "2.3.6.595",

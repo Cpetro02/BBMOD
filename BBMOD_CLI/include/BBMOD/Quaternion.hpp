@@ -1,5 +1,6 @@
 #pragma once
 
+#include <BBMOD/common.hpp>
 #include <BBMOD/Math.hpp>
 #include <BBMOD/Vector3.hpp>
 #include <cstring>
