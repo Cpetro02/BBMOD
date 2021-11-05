@@ -64,7 +64,7 @@ modGun.freeze();
 
 matGun0 = BBMOD_MATERIAL_PBR.clone()
 	.set_base_opacity(c_silver, 1.0)
-	.set_normal_roughness(BBMOD_VEC3_UP, 0.3)
+	.set_normal_roughness(BBMOD_VEC3_UP, 0.2)
 	.set_metallic_ao(1.0, 1.0);
 
 matGun1 = BBMOD_MATERIAL_PBR.clone()
