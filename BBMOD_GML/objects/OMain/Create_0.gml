@@ -52,8 +52,10 @@ modPlane = _objImporter.import("Data/Assets/Plane.obj");
 modPlane.freeze();
 
 matGrass = BBMOD_MATERIAL_PBR.clone()
-	.set_base_opacity(c_white, 1.0)
-	.set_normal_roughness(BBMOD_VEC3_UP, 0.8);
+	.set_base_opacity(c_white, 1.0);
+matGrass.NormalRoughness = sprite_get_texture(SprFloorNormalRoughness, 0);
+matGrass.Repeat = true;
+matGrass.TextureScale = new BBMOD_Vec2(5.0, 5.0);
 
 modPlane.Materials[0] = matGrass;
 
@@ -119,7 +121,7 @@ renderer.GBuffer = true;
 var _lightSun = new BBMOD_DirectionalLight();
 _lightSun.CastShadows = true;
 _lightSun.ShadowmapArea = 512;
-_lightSun.ShadowmapResolution = 2048;
+_lightSun.ShadowmapResolution = 4096;
 renderer.DirectionalLight = _lightSun;
 
 // Any object/struct that has a render method can be added to the renderer:
@@ -133,7 +135,8 @@ renderer.add({
 
 renderer.add({
 	render: method(self, function () {
-		matrix_set(matrix_world, matrix_build(0, 0, 0, 0, 0, 0, room_width, room_height, 0));
+		var _scale = max(room_width, room_height);
+		matrix_set(matrix_world, matrix_build(0, 0, 0, 0, 0, 0, _scale, _scale, _scale));
 		modPlane.render();
 	})
 });

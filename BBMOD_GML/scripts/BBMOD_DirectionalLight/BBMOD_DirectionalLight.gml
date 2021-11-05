@@ -11,7 +11,7 @@ function BBMOD_DirectionalLight()
 	};
 
 	/// @var {BBMOD_Vec3} The direction of the light.
-	Direction = new BBMOD_Vec3(-1.0, -1.0, -1.0).Normalize();
+	Direction = new BBMOD_Vec3(-1.0, 0.0, -1.0).Normalize();
 
 	/// @var {bool} If `true` then the light casts shadows. Defaults to `false`.
 	CastShadows = false;

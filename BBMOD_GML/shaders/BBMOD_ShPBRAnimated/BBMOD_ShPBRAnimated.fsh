@@ -547,20 +547,26 @@ void main()
 	posShadowMap.y = 1.0 - posShadowMap.y;
 	float shadow = xShadowMapPCF(bbmod_Shadowmap, bbmod_ShadowmapTexel, posShadowMap.xy, posShadowMap.z);
 
-	vec3 L = normalize(vec3(1.0));
+	vec3 L = normalize(vec3(1.0, 0.0, 1.0));
 	float NdotL = max(dot(N, L), 0.0);
 	lightColor += xGammaToLinear(vec3(1.0)) * NdotL * (1.0 - shadow);
+
+	vec3 H = normalize(L + V);
+	float NdotV = max(dot(N, V), 0.0);
+	float NdotH = max(dot(N, H), 0.0);
+	float VdotH = max(dot(V, H), 0.0);
 
 	// Diffuse
 	gl_FragColor.rgb = material.Base * lightColor;
 	// Specular
-	gl_FragColor.rgb += xSpecularIBL(bbmod_IBL, bbmod_IBLTexel, bbmod_BRDF, material.Specular, material.Roughness, N, V);
-	// Ambient occlusion
-	gl_FragColor.rgb *= material.AO;
-	// Emissive
-	gl_FragColor.rgb += material.Emissive;
-	// Subsurface scattering
-	gl_FragColor.rgb += xCheapSubsurface(material.Subsurface, -V, N, N, lightColor);
+	gl_FragColor.rgb += xSpecularIBL(bbmod_IBL, bbmod_IBLTexel, bbmod_BRDF, material.Specular, material.Roughness, N, V)
+		+ (xGammaToLinear(vec3(1.0)) * NdotL * (1.0 - shadow) * xBRDF(material.Specular, material.Roughness, NdotL, NdotV, NdotH, VdotH));
+	// // Ambient occlusion
+	// gl_FragColor.rgb *= material.AO;
+	// // Emissive
+	// gl_FragColor.rgb += material.Emissive;
+	// // Subsurface scattering
+	// gl_FragColor.rgb += xCheapSubsurface(material.Subsurface, -V, N, N, lightColor);
 	// Exposure
 	gl_FragColor.rgb = vec3(1.0) - exp(-gl_FragColor.rgb * bbmod_Exposure);
 	// Gamma correction

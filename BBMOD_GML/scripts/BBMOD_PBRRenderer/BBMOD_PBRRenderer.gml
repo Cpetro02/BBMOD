@@ -161,17 +161,21 @@ function BBMOD_PBRRenderer()
 	static present = function () {
 		if (UseAppSurface)
 		{
+			var _windowWidth = window_get_width();
+			var _windowHeight = window_get_height();
 			gpu_push_state();
 			gpu_set_tex_filter(true);
 			var _shader = BBMOD_ShPostProcess;
 			shader_set(_shader);
-			texture_set_stage(shader_get_sampler_index(_shader, "u_sLut"), sprite_get_texture(BBMOD_SprColorLUT, 0));
-			shader_set_uniform_f(shader_get_uniform(_shader, "u_fLutIndex"), !keyboard_check(ord("C")));
+			texture_set_stage(shader_get_sampler_index(_shader, "u_sLut"),
+				sprite_get_texture(BBMOD_SprColorLUT, 0));
+			shader_set_uniform_f(shader_get_uniform(_shader, "u_fLutIndex"),
+				!keyboard_check(ord("C")));
 			shader_set_uniform_f(shader_get_uniform(_shader, "u_vTexel"),
-				1 / surface_get_width(application_surface),
-				1 / surface_get_height(application_surface));
-			shader_set_uniform_f(shader_get_uniform(_shader, "u_fDistortion"), 4);
-			draw_surface_stretched(application_surface, 0, 0, window_get_width(), window_get_height());
+				1 / _windowWidth,
+				1 / _windowHeight);
+			shader_set_uniform_f(shader_get_uniform(_shader, "u_fDistortion"), 2);
+			draw_surface_stretched(application_surface, 0, 0, _windowWidth, _windowHeight);
 			shader_reset();
 			gpu_pop_state();
 		}

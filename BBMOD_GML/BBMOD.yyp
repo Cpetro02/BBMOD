@@ -58,6 +58,7 @@
     {"id":{"name":"BBMOD_ShPBR","path":"shaders/BBMOD_ShPBR/BBMOD_ShPBR.yy",},"order":1,},
     {"id":{"name":"SndShell6","path":"sounds/SndShell6/SndShell6.yy",},"order":6,},
     {"id":{"name":"BBMOD_SprEnvBRDF","path":"sprites/BBMOD_SprEnvBRDF/BBMOD_SprEnvBRDF.yy",},"order":9,},
+    {"id":{"name":"SprFloorNormalRoughness","path":"sprites/SprFloorNormalRoughness/SprFloorNormalRoughness.yy",},"order":5,},
     {"id":{"name":"OLever","path":"objects/OLever/OLever.yy",},"order":11,},
     {"id":{"name":"BBMOD_Cubemap","path":"scripts/BBMOD_Cubemap/BBMOD_Cubemap.yy",},"order":0,},
     {"id":{"name":"BBMOD_ShSky","path":"shaders/BBMOD_ShSky/BBMOD_ShSky.yy",},"order":0,},
