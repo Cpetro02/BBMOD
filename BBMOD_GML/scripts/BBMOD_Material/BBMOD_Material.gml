@@ -508,7 +508,8 @@ function BBMOD_Material(_shader=undefined)
 			var _command = _renderCommands[| i++];
 
 			var _matrix = _command.Matrix;
-			if (!array_equals(_matWorld, _matrix))
+			if (_matrix != undefined
+				&& !array_equals(_matWorld, _matrix))
 			{
 				matrix_set(matrix_world, _matrix);
 				_matWorld = _matrix;
@@ -526,8 +527,13 @@ function BBMOD_Material(_shader=undefined)
 				_setData(_data);
 			}
 
-			vertex_submit(_command.VertexBuffer, pr_trianglelist, _command.Texture);
+			var _vbuffer = _command.VertexBuffer;
+			if (_vbuffer != undefined)
+			{
+				vertex_submit(_vbuffer, pr_trianglelist, _command.Texture);
+			}
 		}
+
 		return self;
 	};
 

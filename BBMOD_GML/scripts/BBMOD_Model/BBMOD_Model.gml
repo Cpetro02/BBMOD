@@ -383,7 +383,7 @@ function BBMOD_Model(_file, _sha1)
 		{
 			_materials = Materials;
 		}
-		RootNode.render(_materials, _transform);
+		RootNode.render(_materials, _transform, matrix_get(matrix_world));
 		return self;
 	};
 
