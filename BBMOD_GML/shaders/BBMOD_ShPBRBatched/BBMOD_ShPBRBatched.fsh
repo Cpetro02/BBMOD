@@ -48,7 +48,6 @@ uniform vec2 bbmod_ShadowmapTexel;
 // Pixels with alpha less than this value will be discarded.
 uniform float bbmod_AlphaTest;
 
-// TODO: Fix Xpanda's include
 /// @param d Linearized depth to encode.
 /// @return Encoded depth.
 /// @source http://aras-p.info/blog/2009/07/30/encoding-floats-to-rgba-the-final/
@@ -337,112 +336,7 @@ vec3 xCheapSubsurface(vec4 subsurface, vec3 eye, vec3 normal, vec3 light, vec3 l
 	return subsurface.rgb * lightColor * fLT;
 }
 
-#define X_CUBEMAP_POS_X 0
-#define X_CUBEMAP_NEG_X 1
-#define X_CUBEMAP_POS_Y 2
-#define X_CUBEMAP_NEG_Y 3
-#define X_CUBEMAP_POS_Z 4
-#define X_CUBEMAP_NEG_Z 5
-
-/// @param dir Sampling direction vector in world-space.
-/// @param texel Texel size on cube side. Used to inset uv coordinates for
-/// seamless filtering on edges. Use 0 to disable.
-/// @return UV coordinates for the following cubemap layout:
-/// +---------------------------+
-/// |+X|-X|+Y|-Y|+Z|-Z|None|None|
-/// +---------------------------+
-vec2 xVec3ToCubeUv(vec3 dir, vec2 texel)
-{
-	vec3 dirAbs = abs(dir);
-
-	int i = dirAbs.x > dirAbs.y ?
-		(dirAbs.x > dirAbs.z ? 0 : 2) :
-		(dirAbs.y > dirAbs.z ? 1 : 2);
-
-	float uc, vc, ma;
-	float o = 0.0;
-
-	if (i == 0)
-	{
-		if (dir.x > 0.0)
-		{
-			uc = dir.y;
-		}
-		else
-		{
-			uc = -dir.y;
-			o = 1.0;
-		}
-		vc = -dir.z;
-		ma = dirAbs.x;
-	}
-	else if (i == 1)
-	{
-		if (dir.y > 0.0)
-		{
-			uc = -dir.x;
-		}
-		else
-		{
-			uc = dir.x;
-			o = 1.0;
-		}
-		vc = -dir.z;
-		ma = dirAbs.y;
-	}
-	else
-	{
-		uc = dir.y;
-		if (dir.z > 0.0)
-		{
-			vc = +dir.x;
-		}
-		else
-		{
-			vc = -dir.x;
-			o = 1.0;
-		}
-		ma = dirAbs.z;
-	}
-
-	float invL = 1.0 / length(ma);
-	vec2 uv = (vec2(uc, vc) * invL + 1.0) * 0.5;
-	uv = mix(texel * 1.5, 1.0 - texel * 1.5, uv);
-	uv.x = (float(i) * 2.0 + o + uv.x) * 0.125;
-	return uv;
-}
-
-/// @desc Converts cubemap UV into a world-space vector.
-vec3 xCubeUvToVec3Normalized(vec2 uv, int cubeSide)
-{
-	uv = uv * 2.0 - 1.0;
-	if (cubeSide == X_CUBEMAP_POS_X)
-	{
-		return normalize(vec3(+1.0, uv.x, -uv.y));
-	}
-	if (cubeSide == X_CUBEMAP_NEG_X)
-	{
-		return normalize(vec3(-1.0, -uv.x, -uv.y));
-	}
-	if (cubeSide == X_CUBEMAP_POS_Y)
-	{
-		return normalize(vec3(-uv.x, +1.0, -uv.y));
-	}
-	if (cubeSide == X_CUBEMAP_NEG_Y)
-	{
-		return normalize(vec3(uv.x, -1.0, -uv.y));
-	}
-	if (cubeSide == X_CUBEMAP_POS_Z)
-	{
-		return normalize(vec3(uv.y, uv.x, +1.0));
-	}
-	if (cubeSide == X_CUBEMAP_NEG_Z)
-	{
-		return normalize(vec3(-uv.y, uv.x, -1.0));
-	}
-	return vec3(0.0, 0.0, 0.0);
-}
-
+// #pragma include("ShadowMapping.xsh")
 /// @source https://iquilezles.org/www/articles/hwinterpolation/hwinterpolation.htm
 float xShadowMapCompare(sampler2D shadowMap, vec2 texel, vec2 uv, float compareZ)
 {
@@ -473,51 +367,22 @@ float xShadowMapCompare(sampler2D shadowMap, vec2 texel, vec2 uv, float compareZ
 /// @source https://learnopengl.com/Advanced-Lighting/Shadows/Shadow-Mapping
 float xShadowMapPCF(sampler2D shadowMap, vec2 texel, vec2 uv, float compareZ)
 {
+	const float size = 2.0;
+	const float texelScale = 1.0;
+	const float dd = 1.0;
+	const float samples = (size * 2.0 + 1.0) * (size * 2.0 + 1.0);
 	float shadow = 0.0;
-	for (float x = -1.0; x <= 1.0; x += 1.0)
+	for (float x = -size; x <= size; x += 1.0)
 	{
-		for (float y = -1.0; y <= 1.0; y += 1.0)
+		for (float y = -size; y <= size; y += 1.0)
 		{
-			shadow += xShadowMapCompare(shadowMap, texel, uv.xy + (vec2(x, y) * texel), compareZ);
+			vec2 uv2 = uv + vec2(x, y) * texel * mix(1.5 / size, texelScale, dd);
+			shadow += xShadowMapCompare(shadowMap, texel, uv2, compareZ);
 		}
 	}
-	return (shadow / 9.0);
+	shadow /= samples;
+	return shadow;
 }
-
-/// @source https://learnopengl.com/Advanced-Lighting/Shadows/Point-Shadows
-float xShadowMapPCFCube(sampler2D shadowMap, vec2 texel, vec3 dir, float compareZ)
-{
-	vec3 samples[20];
-	samples[0] = vec3( 1.0,  1.0,  1.0);
-	samples[1] = vec3( 1.0, -1.0,  1.0);
-	samples[2] = vec3(-1.0, -1.0,  1.0);
-	samples[3] = vec3(-1.0,  1.0,  1.0);
-	samples[4] = vec3( 1.0,  1.0, -1.0);
-	samples[5] = vec3( 1.0, -1.0, -1.0);
-	samples[6] = vec3(-1.0, -1.0, -1.0);
-	samples[7] = vec3(-1.0,  1.0, -1.0);
-	samples[8] = vec3( 1.0,  1.0,  0.0);
-	samples[9] = vec3( 1.0, -1.0,  0.0);
-	samples[10] = vec3(-1.0, -1.0,  0.0);
-	samples[11] = vec3(-1.0,  1.0,  0.0);
-	samples[12] = vec3( 1.0,  0.0,  1.0);
-	samples[13] = vec3(-1.0,  0.0,  1.0);
-	samples[14] = vec3( 1.0,  0.0, -1.0);
-	samples[15] = vec3(-1.0,  0.0, -1.0);
-	samples[16] = vec3( 0.0,  1.0,  1.0);
-	samples[17] = vec3( 0.0, -1.0,  1.0);
-	samples[18] = vec3( 0.0, -1.0, -1.0);
-	samples[19] = vec3( 0.0,  1.0, -1.0);
-
-	float shadow = 0.0;
-	vec2 texelY = vec2(texel.y, texel.y);
-	for (int i = 0; i < 20; ++i)
-	{
-		shadow += xShadowMapCompare(shadowMap, texel, xVec3ToCubeUv(dir + samples[i], texelY), compareZ);
-	}
-	return (shadow / 20.0);
-}
-
 
 
 void main()
@@ -539,7 +404,20 @@ void main()
 
 	vec3 N = material.Normal;
 	vec3 V = normalize(bbmod_CamPos - v_vVertex);
-	vec3 lightColor = xDiffuseIBL(bbmod_IBL, bbmod_IBLTexel, N);
+	vec3 lightDiffuse = vec3(0.0);
+	vec3 lightSpecular = vec3(0.0);
+
+	////////////////////////////////////////////////////////////////////////////
+	// IBL
+	lightDiffuse += xDiffuseIBL(bbmod_IBL, bbmod_IBLTexel, N);
+	lightSpecular += xSpecularIBL(bbmod_IBL, bbmod_IBLTexel, bbmod_BRDF, material.Specular, material.Roughness, N, V);
+
+	////////////////////////////////////////////////////////////////////////////
+	// Directional light
+	vec3 L = normalize(vec3(1.0, 0.0, 1.0));
+	float NdotL = max(dot(N, L), 0.0);
+	vec3 lightColor = xGammaToLinear(vec3(1.0));
+	lightDiffuse += xCheapSubsurface(material.Subsurface, V, N, L, lightColor);
 
 	float bias = 1.0;
 	vec3 posShadowMap = (bbmod_ShadowmapMatrix * vec4(v_vVertex + N * bias, 1.0)).xyz;
@@ -547,29 +425,21 @@ void main()
 	posShadowMap.y = 1.0 - posShadowMap.y;
 	float shadow = xShadowMapPCF(bbmod_Shadowmap, bbmod_ShadowmapTexel, posShadowMap.xy, posShadowMap.z);
 
-	vec3 L = normalize(vec3(1.0, 0.0, 1.0));
-	float NdotL = max(dot(N, L), 0.0);
-	lightColor += xGammaToLinear(vec3(1.0)) * NdotL * (1.0 - shadow);
-
+	lightColor *= NdotL * (1.0 - shadow);
 	vec3 H = normalize(L + V);
 	float NdotV = max(dot(N, V), 0.0);
 	float NdotH = max(dot(N, H), 0.0);
 	float VdotH = max(dot(V, H), 0.0);
+	lightDiffuse += lightColor;
+	lightSpecular += lightColor * xBRDF(material.Specular, material.Roughness, NdotL, NdotV, NdotH, VdotH);
 
-	// Diffuse
-	gl_FragColor.rgb = material.Base * lightColor;
-	// Specular
-	gl_FragColor.rgb += xSpecularIBL(bbmod_IBL, bbmod_IBLTexel, bbmod_BRDF, material.Specular, material.Roughness, N, V)
-		+ (xGammaToLinear(vec3(1.0)) * NdotL * (1.0 - shadow) * xBRDF(material.Specular, material.Roughness, NdotL, NdotV, NdotH, VdotH));
-	// // Ambient occlusion
-	// gl_FragColor.rgb *= material.AO;
-	// // Emissive
-	// gl_FragColor.rgb += material.Emissive;
-	// // Subsurface scattering
-	// gl_FragColor.rgb += xCheapSubsurface(material.Subsurface, -V, N, N, lightColor);
-	// Exposure
+	////////////////////////////////////////////////////////////////////////////
+	// Compose into resulting color
+	gl_FragColor.rgb = material.Base * lightDiffuse;
+	gl_FragColor.rgb += lightSpecular;
+	gl_FragColor.rgb *= material.AO;
+	gl_FragColor.rgb += material.Emissive;
 	gl_FragColor.rgb = vec3(1.0) - exp(-gl_FragColor.rgb * bbmod_Exposure);
-	// Gamma correction
 	gl_FragColor.rgb = xLinearToGamma(gl_FragColor.rgb);
 }
 // include("Uber_PS.xsh")

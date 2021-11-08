@@ -65,7 +65,6 @@ vec4 xQuaternionRotate(vec4 q, vec4 v)
 	return rot;
 }
 
-
 void main()
 {
 	int idx = int(in_Id) * 2;

@@ -215,7 +215,6 @@ vec4 xEncodeDepth20Normal12(float depth, vec3 N)
 	return enc;
 }
 
-
 void main()
 {
 	vec4 baseOpacity = texture2D(gm_BaseTexture, v_vTexCoord);

@@ -48,6 +48,24 @@ uniform vec2 bbmod_ShadowmapTexel;
 // Pixels with alpha less than this value will be discarded.
 uniform float bbmod_AlphaTest;
 
+/// @param d Linearized depth to encode.
+/// @return Encoded depth.
+/// @source http://aras-p.info/blog/2009/07/30/encoding-floats-to-rgba-the-final/
+vec3 xEncodeDepth(float d)
+{
+	const float inv255 = 1.0 / 255.0;
+	vec3 enc;
+	enc.x = d;
+	enc.y = d * 255.0;
+	enc.z = enc.y * 255.0;
+	enc = fract(enc);
+	float temp = enc.z * inv255;
+	enc.x -= enc.y * inv255;
+	enc.y -= temp;
+	enc.z -= temp;
+	return enc;
+}
+
 /// @param c Encoded depth.
 /// @return Docoded linear depth.
 /// @source http://aras-p.info/blog/2009/07/30/encoding-floats-to-rgba-the-final/
@@ -73,6 +91,23 @@ vec3 xGammaToLinear(vec3 rgb)
 vec3 xLinearToGamma(vec3 rgb)
 {
 	return pow(rgb, vec3(1.0 / X_GAMMA));
+}
+
+/// @desc Gets color's luminance.
+float xLuminance(vec3 rgb)
+{
+	return (0.2126 * rgb.r + 0.7152 * rgb.g + 0.0722 * rgb.b);
+}
+/// @note Input color should be in gamma space.
+/// @source https://graphicrants.blogspot.cz/2009/04/rgbm-color-encoding.html
+vec4 xEncodeRGBM(vec3 color)
+{
+	vec4 rgbm;
+	color *= 1.0 / 6.0;
+	rgbm.a = clamp(max(max(color.r, color.g), max(color.b, 0.000001)), 0.0, 1.0);
+	rgbm.a = ceil(rgbm.a * 255.0) / 255.0;
+	rgbm.rgb = color / rgbm.a;
+	return rgbm;
 }
 
 /// @source https://graphicrants.blogspot.cz/2009/04/rgbm-color-encoding.html
@@ -136,15 +171,29 @@ Material UnpackMaterial(
 }
 
 #define X_PI   3.14159265359
+#define X_2_PI 6.28318530718
 
 /// @return x^2
 #define xPow2(x) ((x) * (x))
+
+/// @return x^3
+#define xPow3(x) ((x) * (x) * (x))
 
 /// @return x^4
 #define xPow4(x) ((x) * (x) * (x) * (x))
 
 /// @return x^5
 #define xPow5(x) ((x) * (x) * (x) * (x) * (x))
+
+/// @return arctan2(x,y)
+#define xAtan2(x, y) atan(y, x)
+
+/// @return Direction from point `from` to point `to` in degrees (0-360 range).
+float xPointDirection(vec2 from, vec2 to)
+{
+	float x = xAtan2(from.x - to.x, from.y - to.y);
+	return ((x > 0.0) ? x : (2.0 * X_PI + x)) * 180.0 / X_PI;
+}
 
 /// @desc Default specular color for dielectrics
 /// @source http://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_notes_v2.pdf
@@ -164,6 +213,13 @@ float xSpecularD_GGX(float roughness, float NdotH)
 float xK_Analytic(float roughness)
 {
 	return xPow2(roughness + 1.0) * 0.125;
+}
+
+/// @desc Roughness remapping for IBL lights.
+/// @source http://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_notes_v2.pdf
+float xK_IBL(float roughness)
+{
+	return xPow2(roughness) * 0.5;
 }
 
 /// @desc Geometric attenuation
@@ -212,6 +268,21 @@ vec2 xVec3ToOctahedronUv(vec3 dir)
 	}
 	return octahedron.xy * 0.5 + 0.5;
 }
+
+/// @desc Converts octahedron UV into a world-space vector.
+vec3 xOctahedronUvToVec3Normalized(vec2 uv)
+{
+	vec3 position = vec3(2.0 * (uv - 0.5), 0);
+	vec2 absolute = abs(position.xy);
+	position.z = 1.0 - absolute.x - absolute.y;
+	if (position.z < 0.0)
+	{
+		position.xy = sign(position.xy) * vec2(1.0 - absolute.y, 1.0 - absolute.x);
+	}
+	return position;
+}
+
+
 
 vec3 xDiffuseIBL(sampler2D ibl, vec2 texel, vec3 N)
 {
@@ -265,6 +336,7 @@ vec3 xCheapSubsurface(vec4 subsurface, vec3 eye, vec3 normal, vec3 light, vec3 l
 	return subsurface.rgb * lightColor * fLT;
 }
 
+// #pragma include("ShadowMapping.xsh")
 /// @source https://iquilezles.org/www/articles/hwinterpolation/hwinterpolation.htm
 float xShadowMapCompare(sampler2D shadowMap, vec2 texel, vec2 uv, float compareZ)
 {
@@ -292,34 +364,13 @@ float xShadowMapCompare(sampler2D shadowMap, vec2 texel, vec2 uv, float compareZ
 		fuv.y);
 }
 
-
 /// @source https://learnopengl.com/Advanced-Lighting/Shadows/Shadow-Mapping
 float xShadowMapPCF(sampler2D shadowMap, vec2 texel, vec2 uv, float compareZ)
 {
-	const float size = 3.0;
-	const float samples = (size * 2.0 + 1.0) * (size * 2.0 + 1.0);
-
-#if 1
-	const float texelScale = 3.0;
-	float d = 0.0;
-	float i = 0.0;
-	for (float x = -1.0; x <= 1.0; x += 1.0)
-	{
-		for (float y = -1.0; y <= 1.0; y += 1.0)
-		{
-			vec3 s = texture2D(shadowMap, uv + size * vec2(x, y) * texel * texelScale).rgb;
-			float j = ((s != vec3(1.0, 0.0, 0.0)) ? 1.0 : 0.0);
-			d += xDecodeDepth(s) * j;
-			i += j;
-		}
-	}
-	d /= i;
-	float dd = clamp(abs(d - compareZ) / 0.1, 0.0, 1.0);
-#else
+	const float size = 2.0;
 	const float texelScale = 1.0;
-	float dd = 1.0;
-#endif
-
+	const float dd = 1.0;
+	const float samples = (size * 2.0 + 1.0) * (size * 2.0 + 1.0);
 	float shadow = 0.0;
 	for (float x = -size; x <= size; x += 1.0)
 	{
@@ -330,9 +381,9 @@ float xShadowMapPCF(sampler2D shadowMap, vec2 texel, vec2 uv, float compareZ)
 		}
 	}
 	shadow /= samples;
-
 	return shadow;
 }
+
 
 void main()
 {
@@ -353,7 +404,20 @@ void main()
 
 	vec3 N = material.Normal;
 	vec3 V = normalize(bbmod_CamPos - v_vVertex);
-	vec3 lightColor = xDiffuseIBL(bbmod_IBL, bbmod_IBLTexel, N);
+	vec3 lightDiffuse = vec3(0.0);
+	vec3 lightSpecular = vec3(0.0);
+
+	////////////////////////////////////////////////////////////////////////////
+	// IBL
+	lightDiffuse += xDiffuseIBL(bbmod_IBL, bbmod_IBLTexel, N);
+	lightSpecular += xSpecularIBL(bbmod_IBL, bbmod_IBLTexel, bbmod_BRDF, material.Specular, material.Roughness, N, V);
+
+	////////////////////////////////////////////////////////////////////////////
+	// Directional light
+	vec3 L = normalize(vec3(1.0, 0.0, 1.0));
+	float NdotL = max(dot(N, L), 0.0);
+	vec3 lightColor = xGammaToLinear(vec3(1.0));
+	lightDiffuse += xCheapSubsurface(material.Subsurface, V, N, L, lightColor);
 
 	float bias = 1.0;
 	vec3 posShadowMap = (bbmod_ShadowmapMatrix * vec4(v_vVertex + N * bias, 1.0)).xyz;
@@ -361,30 +425,21 @@ void main()
 	posShadowMap.y = 1.0 - posShadowMap.y;
 	float shadow = xShadowMapPCF(bbmod_Shadowmap, bbmod_ShadowmapTexel, posShadowMap.xy, posShadowMap.z);
 
-	vec3 L = normalize(vec3(1.0, 0.0, 1.0));
-	float NdotL = max(dot(N, L), 0.0);
-	vec3 lcol = xGammaToLinear(vec3(1.0)) * NdotL * (1.0 - shadow);
-	lightColor += lcol;
-
+	lightColor *= NdotL * (1.0 - shadow);
 	vec3 H = normalize(L + V);
 	float NdotV = max(dot(N, V), 0.0);
 	float NdotH = max(dot(N, H), 0.0);
 	float VdotH = max(dot(V, H), 0.0);
+	lightDiffuse += lightColor;
+	lightSpecular += lightColor * xBRDF(material.Specular, material.Roughness, NdotL, NdotV, NdotH, VdotH);
 
-	// Diffuse
-	gl_FragColor.rgb = material.Base * lightColor;
-	// Specular
-	gl_FragColor.rgb += xSpecularIBL(bbmod_IBL, bbmod_IBLTexel, bbmod_BRDF, material.Specular, material.Roughness, N, V)
-		+ (lcol * xBRDF(material.Specular, material.Roughness, NdotL, NdotV, NdotH, VdotH));
-	// Ambient occlusion
+	////////////////////////////////////////////////////////////////////////////
+	// Compose into resulting color
+	gl_FragColor.rgb = material.Base * lightDiffuse;
+	gl_FragColor.rgb += lightSpecular;
 	gl_FragColor.rgb *= material.AO;
-	// Emissive
 	gl_FragColor.rgb += material.Emissive;
-	// Subsurface scattering
-	gl_FragColor.rgb += xCheapSubsurface(material.Subsurface, -V, N, N, lightColor);
-	// Exposure
 	gl_FragColor.rgb = vec3(1.0) - exp(-gl_FragColor.rgb * bbmod_Exposure);
-	// Gamma correction
 	gl_FragColor.rgb = xLinearToGamma(gl_FragColor.rgb);
 }
 // include("Uber_PS.xsh")

@@ -17,7 +17,6 @@ uniform float bbmod_AlphaTest;
 
 
 
-
 void main()
 {
 	vec4 baseOpacity = texture2D(gm_BaseTexture, v_vTexCoord);

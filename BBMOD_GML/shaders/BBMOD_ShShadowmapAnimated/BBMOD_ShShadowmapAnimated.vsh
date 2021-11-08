@@ -40,7 +40,6 @@ vec3 xDualQuaternionTransform(vec4 real, vec4 dual, vec3 v)
 		+ 2.0 * (real.w * dual.xyz - dual.w * real.xyz + cross(real.xyz, dual.xyz)));
 }
 
-
 void main()
 {
 	// Source:

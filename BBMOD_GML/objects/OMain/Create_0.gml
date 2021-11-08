@@ -18,6 +18,7 @@ modCharacter.freeze();
 
 matPlayer = BBMOD_MATERIAL_PBR_ANIMATED.clone();
 matPlayer.BaseOpacity = sprite_get_texture(SprPlayer, choose(0, 1));
+matPlayer.set_subsurface(c_maroon, 1.0);
 modCharacter.Materials[0] = matPlayer;
 
 animAim = new BBMOD_Animation("Data/Assets/Character/Character_Aim.bbanim");
@@ -33,9 +34,11 @@ animWalk.add_event(0, "Footstep").add_event(32, "Footstep");
 
 // Zombie
 matZombie0 = BBMOD_MATERIAL_PBR_ANIMATED.clone();
+matZombie0.set_subsurface(c_green, 1.0);
 matZombie0.BaseOpacity = sprite_get_texture(SprZombie, 0);
 
 matZombie1 = BBMOD_MATERIAL_PBR_ANIMATED.clone();
+matZombie1.set_subsurface(c_green, 1.0);
 matZombie1.BaseOpacity = sprite_get_texture(SprZombie, 1);
 
 animZombieIdle = new BBMOD_Animation("Data/Assets/Character/Zombie_Idle.bbanim");

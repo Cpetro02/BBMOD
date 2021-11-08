@@ -10,7 +10,6 @@
 
 #pragma include("Includes_VS.xsh")
 
-
 void main()
 {
 #if ANIMATED

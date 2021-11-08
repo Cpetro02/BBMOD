@@ -26,7 +26,6 @@ uniform vec2 bbmod_TextureScale;
 
 
 
-
 void main()
 {
 	vec4 position = in_Position;
