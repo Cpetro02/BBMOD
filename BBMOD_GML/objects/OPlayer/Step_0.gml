@@ -73,6 +73,10 @@ if (!GetCutscene()
 				_shell.speed = random_range(0.2, 0.5);
 				_shell.zspeed = random_range(0.5, 1.0);
 
+				var _light = instance_create_depth(_shellPos[0], _shellPos[1], 0, OGunshotLight);
+				_light.z = _shellPos[2];
+				_light.light.Position.FromArray(_shellPos);
+
 				// Play a rundom gunshot sound
 				var _sound = choose(
 					SndGunshot0,

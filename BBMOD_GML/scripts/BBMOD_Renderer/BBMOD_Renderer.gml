@@ -60,6 +60,9 @@ function BBMOD_Renderer()
 	/// @var {BBMOD_DirectionalLight/undefined} The directional light.
 	DirectionalLight = undefined;
 
+	/// @var {BBMOD_PointLight[]}
+	PointLights = [];
+
 	/// @var {BBMOD_PointLight[]} An array of point lights.
 	/// @readonly
 	PointLights = [];

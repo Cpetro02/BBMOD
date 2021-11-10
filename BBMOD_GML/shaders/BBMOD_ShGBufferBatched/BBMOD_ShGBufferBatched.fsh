@@ -2,6 +2,7 @@
 #define MUL(m, v) ((m) * (v))
 #define IVec4 ivec4
 
+
 varying vec3 v_vVertex;
 //varying vec4 v_vColor;
 varying vec2 v_vTexCoord;
@@ -24,35 +25,6 @@ uniform sampler2D bbmod_Subsurface;
 // RGBM encoded emissive color
 uniform sampler2D bbmod_Emissive;
 
-// Prefiltered octahedron env. map
-uniform sampler2D bbmod_IBL;
-
-// Texel size of one octahedron.
-uniform vec2 bbmod_IBLTexel;
-
-// Preintegrated env. BRDF
-uniform sampler2D bbmod_BRDF;
-
-// Camera's position in world space
-uniform vec3 bbmod_CamPos;
-
-// Camera's exposure value
-uniform float bbmod_Exposure;
-
-// Shadowmap texture
-uniform sampler2D bbmod_Shadowmap;
-
-// WORLD_VIEW_PROJECTION matrix used when rendering shadowmap
-uniform mat4 bbmod_ShadowmapMatrix;
-
-// (1.0/shadowmapWidth, 1.0/shadowmapHeight)
-uniform vec2 bbmod_ShadowmapTexel;
-
-// Direction of the directional light
-uniform vec3 bbmod_LightDirectionalDir;
-
-// RGBM encoded color of the directional light
-uniform vec4 bbmod_LightDirectionalColor;
 
 // Pixels with alpha less than this value will be discarded.
 uniform float bbmod_AlphaTest;

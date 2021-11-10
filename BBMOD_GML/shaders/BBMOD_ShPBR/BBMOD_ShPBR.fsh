@@ -2,6 +2,8 @@
 #define MUL(m, v) ((m) * (v))
 #define IVec4 ivec4
 
+#define MAX_LIGHTS 4
+
 varying vec3 v_vVertex;
 //varying vec4 v_vColor;
 varying vec2 v_vTexCoord;
@@ -53,6 +55,9 @@ uniform vec3 bbmod_LightDirectionalDir;
 
 // RGBM encoded color of the directional light
 uniform vec4 bbmod_LightDirectionalColor;
+
+// [(x, y, z, range), (r, g, b, m), ...]
+uniform vec4 bbmod_LightPointData[MAX_LIGHTS * 2];
 
 // Pixels with alpha less than this value will be discarded.
 uniform float bbmod_AlphaTest;
@@ -442,6 +447,25 @@ void main()
 	float VdotH = max(dot(V, H), 0.0);
 	lightDiffuse += lightColor;
 	lightSpecular += lightColor * xBRDF(material.Specular, material.Roughness, NdotL, NdotV, NdotH, VdotH);
+
+	////////////////////////////////////////////////////////////////////////////
+	// Point lights
+	for (int i = 0; i < MAX_LIGHTS; ++i)
+	{
+		vec4 positionRange = bbmod_LightPointData[i * 2];
+		lightColor = xGammaToLinear(xDecodeRGBM(bbmod_LightPointData[(i * 2) + 1]));
+		L = positionRange.xyz - v_vVertex;
+		float dist = length(L);
+		float att = pow(clamp(1.0 - pow(dist / positionRange.w, 4.0), 0.0, 1.0), 2.0) / (pow(dist, 2.0) + 1.0);
+		NdotL = max(dot(N, L), 0.0);
+		lightColor *= NdotL * att;
+		H = normalize(L + V);
+		NdotV = max(dot(N, V), 0.0);
+		NdotH = max(dot(N, H), 0.0);
+		VdotH = max(dot(V, H), 0.0);
+		lightDiffuse += lightColor;
+		lightSpecular += lightColor * xBRDF(material.Specular, material.Roughness, NdotL, NdotV, NdotH, VdotH);
+	}
 
 	////////////////////////////////////////////////////////////////////////////
 	// Compose into resulting color

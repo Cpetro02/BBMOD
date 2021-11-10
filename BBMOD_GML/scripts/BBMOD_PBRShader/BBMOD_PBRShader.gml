@@ -38,6 +38,8 @@ function BBMOD_PBRShader(_shader, _vertexFormat)
 
 	ULightDirectionalColor = get_uniform("bbmod_LightDirectionalColor");
 
+	ULightPointData = get_uniform("bbmod_LightPointData");
+
 	/// @func set_cam_pos(_x[, _y, _z])
 	/// @desc Sets a fragment shader uniform `bbmod_CamPos` to the given position.
 	/// @param {BBMOD_Vec3/real} _x Either a vector with the camera's position
@@ -167,6 +169,27 @@ function BBMOD_PBRShader(_shader, _vertexFormat)
 		var _direction = _light.Direction;
 		set_uniform_f3(ULightDirectionalDir, _direction.X, _direction.Y, _direction.Z);
 		set_uniform_f_array(ULightDirectionalColor, _light.Color.ToRGBM());
+		return self;
+	};
+
+	/// @func set_point_lights(_lights)
+	/// @desc Sets uniform `bbmod_LightPointData`.
+	/// @param {BBMOD_PointLight[]} _lights An array of point lights.
+	/// @return {BBMOD_PBRShader} Returns `self`.
+	static set_point_lights = function (_lights) {
+		gml_pragma("forceinline");
+		var _maxLights = 4;
+		var _data = array_create(_maxLights * 8, 0);
+		var _imax = min(array_length(_lights), _maxLights);
+		for (var i = 0; i < _imax; ++i)
+		{
+			var _index = i * 8;
+			var _light = _lights[i];
+			_light.Position.ToArray(_data, _index);
+			_data[@ _index + 3] = _light.Range;
+			_light.Color.ToRGBM(_data, _index + 4);
+		}
+		set_uniform_f_array(ULightPointData, _data);
 		return self;
 	};
 

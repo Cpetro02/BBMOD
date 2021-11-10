@@ -1,5 +1,7 @@
 #pragma include("Compatibility.xsh")
 
+#pragma include("Defines_PS.xsh")
+
 #pragma include("Output_VS.xsh")
 
 #pragma include("Output_PS.xsh")
@@ -57,6 +59,25 @@ void main()
 	float VdotH = max(dot(V, H), 0.0);
 	lightDiffuse += lightColor;
 	lightSpecular += lightColor * xBRDF(material.Specular, material.Roughness, NdotL, NdotV, NdotH, VdotH);
+
+	////////////////////////////////////////////////////////////////////////////
+	// Point lights
+	for (int i = 0; i < MAX_LIGHTS; ++i)
+	{
+		Vec4 positionRange = bbmod_LightPointData[i * 2];
+		lightColor = xGammaToLinear(xDecodeRGBM(bbmod_LightPointData[(i * 2) + 1]));
+		L = positionRange.xyz - v_vVertex;
+		float dist = length(L);
+		float att = pow(clamp(1.0 - pow(dist / positionRange.w, 4.0), 0.0, 1.0), 2.0) / (pow(dist, 2.0) + 1.0);
+		NdotL = max(dot(N, L), 0.0);
+		lightColor *= NdotL * att;
+		H = normalize(L + V);
+		NdotV = max(dot(N, V), 0.0);
+		NdotH = max(dot(N, H), 0.0);
+		VdotH = max(dot(V, H), 0.0);
+		lightDiffuse += lightColor;
+		lightSpecular += lightColor * xBRDF(material.Specular, material.Roughness, NdotL, NdotV, NdotH, VdotH);
+	}
 
 	////////////////////////////////////////////////////////////////////////////
 	// Compose into resulting color

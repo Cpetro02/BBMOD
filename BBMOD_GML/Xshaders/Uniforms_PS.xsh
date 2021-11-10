@@ -13,7 +13,9 @@ uniform Texture2D bbmod_Subsurface;
 
 // RGBM encoded emissive color
 uniform Texture2D bbmod_Emissive;
+#endif
 
+#if PBR
 // Prefiltered octahedron env. map
 uniform Texture2D bbmod_IBL;
 
@@ -43,6 +45,9 @@ uniform Vec3 bbmod_LightDirectionalDir;
 
 // RGBM encoded color of the directional light
 uniform Vec4 bbmod_LightDirectionalColor;
+
+// [(x, y, z, range), (r, g, b, m), ...]
+uniform Vec4 bbmod_LightPointData[MAX_LIGHTS * 2];
 #endif
 
 // Pixels with alpha less than this value will be discarded.

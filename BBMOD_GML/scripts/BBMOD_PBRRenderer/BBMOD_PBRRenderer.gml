@@ -161,6 +161,19 @@ function BBMOD_PBRRenderer()
 			{
 			}
 
+			try
+			{
+				var _lights = [];
+				with (OPointLight)
+				{
+					array_push(_lights, light);
+				}
+				BBMOD_SHADER_CURRENT.set_point_lights(_lights);
+			}
+			catch (_ignore)
+			{
+			}
+
 			_material.submit_queue()
 				.clear_queue();
 		}
