@@ -30,6 +30,7 @@ void main()
 	Vec3 V = normalize(bbmod_CamPos - v_vVertex);
 	Vec3 lightDiffuse = Vec3(0.0);
 	Vec3 lightSpecular = Vec3(0.0);
+	Vec3 lightSubsurface = Vec3(0.0);
 
 	////////////////////////////////////////////////////////////////////////////
 	// IBL
@@ -38,10 +39,10 @@ void main()
 
 	////////////////////////////////////////////////////////////////////////////
 	// Directional light
-	Vec3 L = normalize(Vec3(1.0, 0.0, 1.0));
+	Vec3 L = normalize(-bbmod_LightDirectionalDir);
 	float NdotL = max(dot(N, L), 0.0);
-	Vec3 lightColor = xGammaToLinear(Vec3(1.0));
-	lightDiffuse += xCheapSubsurface(material.Subsurface, V, N, L, lightColor);
+	Vec3 lightColor = xGammaToLinear(xDecodeRGBM(bbmod_LightDirectionalColor));
+	lightSubsurface += xCheapSubsurface(material.Subsurface, V, N, L, lightColor);
 
 	float bias = 1.0;
 	Vec3 posShadowMap = (bbmod_ShadowmapMatrix * vec4(v_vVertex + N * bias, 1.0)).xyz;
@@ -61,6 +62,7 @@ void main()
 	// Compose into resulting color
 	gl_FragColor.rgb = material.Base * lightDiffuse;
 	gl_FragColor.rgb += lightSpecular;
+	gl_FragColor.rgb += lightSubsurface;
 	gl_FragColor.rgb *= material.AO;
 	gl_FragColor.rgb += material.Emissive;
 	gl_FragColor.rgb = Vec3(1.0) - exp(-gl_FragColor.rgb * bbmod_Exposure);

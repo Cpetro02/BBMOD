@@ -34,6 +34,10 @@ function BBMOD_PBRShader(_shader, _vertexFormat)
 
 	UShadowmapTexel = get_uniform("bbmod_ShadowmapTexel");
 
+	ULightDirectionalDir = get_uniform("bbmod_LightDirectionalDir");
+
+	ULightDirectionalColor = get_uniform("bbmod_LightDirectionalColor");
+
 	/// @func set_cam_pos(_x[, _y, _z])
 	/// @desc Sets a fragment shader uniform `bbmod_CamPos` to the given position.
 	/// @param {BBMOD_Vec3/real} _x Either a vector with the camera's position
@@ -135,7 +139,7 @@ function BBMOD_PBRShader(_shader, _vertexFormat)
 	};
 
 	/// @func set_shadowmap(_texture, _matrix)
-	/// @desc
+	/// @desc Sets the s
 	/// @param {ptr} _texture
 	/// @param {real[16]} _matrix
 	/// @return {BBMOD_PBRShader} Returns `self`.
@@ -149,6 +153,20 @@ function BBMOD_PBRShader(_shader, _vertexFormat)
 			texture_get_texel_width(_texture),
 			texture_get_texel_height(_texture));
 		set_uniform_matrix_array(UShadowmapMatrix, _matrix);
+		return self;
+	};
+
+	/// @func set_directional_light(_light)
+	/// @desc Sets uniforms `bbmod_LightDirectionalDir` and
+	/// `bbmod_LightDirectionalColor`.
+	/// @param {BBMOD_DirectionalLight} _light The directional light.
+	/// @return {BBMOD_PBRShader} Returns `self`.
+	/// @see BBMOD_DirectionalLight
+	static set_directional_light = function (_light) {
+		gml_pragma("forceinline");
+		var _direction = _light.Direction;
+		set_uniform_f3(ULightDirectionalDir, _direction.X, _direction.Y, _direction.Z);
+		set_uniform_f_array(ULightDirectionalColor, _light.Color.ToRGBM());
 		return self;
 	};
 

@@ -39,11 +39,20 @@ uniform vec3 bbmod_CamPos;
 // Camera's exposure value
 uniform float bbmod_Exposure;
 
+// Shadowmap texture
 uniform sampler2D bbmod_Shadowmap;
 
+// WORLD_VIEW_PROJECTION matrix used when rendering shadowmap
 uniform mat4 bbmod_ShadowmapMatrix;
 
+// (1.0/shadowmapWidth, 1.0/shadowmapHeight)
 uniform vec2 bbmod_ShadowmapTexel;
+
+// Direction of the directional light
+uniform vec3 bbmod_LightDirectionalDir;
+
+// RGBM encoded color of the directional light
+uniform vec4 bbmod_LightDirectionalColor;
 
 // Pixels with alpha less than this value will be discarded.
 uniform float bbmod_AlphaTest;

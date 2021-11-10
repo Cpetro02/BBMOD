@@ -12,6 +12,8 @@
 * Added new method `BBMOD_Material.clear_queue`, which clears the material's render queue.
 * Added new function `bbmod_surface_check`, which creates a new surface if it does not exist or if it has wrong size.
 * Added new interface `BBMOD_IRenderTarget` for structs that can be set as a render target.
+* Added new macro `BBMOD_RGBM_VALUE_MAX`, which defines the maximum value which a single color channel can have before it is converted to RGBM.
+* Added new struct `BBMOD_Color`.
 
 **Cubemap module:**
 * Added new module - Cubemap.

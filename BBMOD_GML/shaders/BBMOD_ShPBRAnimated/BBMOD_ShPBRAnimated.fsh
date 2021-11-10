@@ -39,11 +39,20 @@ uniform vec3 bbmod_CamPos;
 // Camera's exposure value
 uniform float bbmod_Exposure;
 
+// Shadowmap texture
 uniform sampler2D bbmod_Shadowmap;
 
+// WORLD_VIEW_PROJECTION matrix used when rendering shadowmap
 uniform mat4 bbmod_ShadowmapMatrix;
 
+// (1.0/shadowmapWidth, 1.0/shadowmapHeight)
 uniform vec2 bbmod_ShadowmapTexel;
+
+// Direction of the directional light
+uniform vec3 bbmod_LightDirectionalDir;
+
+// RGBM encoded color of the directional light
+uniform vec4 bbmod_LightDirectionalColor;
 
 // Pixels with alpha less than this value will be discarded.
 uniform float bbmod_AlphaTest;
@@ -406,6 +415,7 @@ void main()
 	vec3 V = normalize(bbmod_CamPos - v_vVertex);
 	vec3 lightDiffuse = vec3(0.0);
 	vec3 lightSpecular = vec3(0.0);
+	vec3 lightSubsurface = vec3(0.0);
 
 	////////////////////////////////////////////////////////////////////////////
 	// IBL
@@ -414,10 +424,10 @@ void main()
 
 	////////////////////////////////////////////////////////////////////////////
 	// Directional light
-	vec3 L = normalize(vec3(1.0, 0.0, 1.0));
+	vec3 L = normalize(-bbmod_LightDirectionalDir);
 	float NdotL = max(dot(N, L), 0.0);
-	vec3 lightColor = xGammaToLinear(vec3(1.0));
-	lightDiffuse += xCheapSubsurface(material.Subsurface, V, N, L, lightColor);
+	vec3 lightColor = xGammaToLinear(xDecodeRGBM(bbmod_LightDirectionalColor));
+	lightSubsurface += xCheapSubsurface(material.Subsurface, V, N, L, lightColor);
 
 	float bias = 1.0;
 	vec3 posShadowMap = (bbmod_ShadowmapMatrix * vec4(v_vVertex + N * bias, 1.0)).xyz;
@@ -437,6 +447,7 @@ void main()
 	// Compose into resulting color
 	gl_FragColor.rgb = material.Base * lightDiffuse;
 	gl_FragColor.rgb += lightSpecular;
+	gl_FragColor.rgb += lightSubsurface;
 	gl_FragColor.rgb *= material.AO;
 	gl_FragColor.rgb += material.Emissive;
 	gl_FragColor.rgb = vec3(1.0) - exp(-gl_FragColor.rgb * bbmod_Exposure);

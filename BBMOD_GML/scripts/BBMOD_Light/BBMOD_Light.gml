@@ -6,9 +6,6 @@ function BBMOD_Light()
 	/// @var {BBMOD_Vec3} The position of the light.
 	Position = new BBMOD_Vec3();
 
-	/// @var {uint} The color of the light. Defaults to `c_white`.
-	Color = c_white;
-
-	/// @var {real} The intensity of the light. Defaults to 1.
-	Intensity = 1.0;
+	/// @var {BBMOD_Color} The color of the light. Defaults to white.
+	Color = new BBMOD_Color();
 }

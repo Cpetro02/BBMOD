@@ -171,39 +171,24 @@ function BBMOD_PBRMaterial(_shader=undefined)
 		return self;
 	};
 
-	/// @func set_emissive(_red, _green, _blue)
+	/// @func set_emissive(_color)
 	/// @desc Changes the emissive color to a uniform value for the entire material.
-	/// @param {uint} _red The new value of the red channel. Accepts values in
-	/// range 0..1530.
-	/// @param {uint} _green The new value of the green channel. Accepts values in
-	/// range 0..1530.
-	/// @param {uint} _blue The new value of the blue channel. Accepts values in
-	/// range 0..1530.
+	/// @param {BBMOD_Color} _color The new emissive color.
 	/// @return {BBMOD_PBRMaterial} Returns `self`.
-	static set_emissive = function (_red, _green, _blue) {
-		var _range = 6.0;
-		var _max = 255.0 * _range;
-
-		_red = min(_red / _max, 1.0);
-		_green = min(_green / _max, 1.0);
-		_blue = min(_blue / _max, 1.0);
-
-		var _a = clamp(max(_red, _green, _blue, 0.000001), 0.0, 1.0);
-		_a = ceil(_a * 255.0) / 255.0;
-
-		_red /= _a;
-		_green /= _a;
-		_blue /= _a;
-
+	static set_emissive = function () {
+		var _color = (argument_count == 3)
+			? new BBMOD_Color(argument[0], argument[1], argument[2])
+			: argument[0];
+		var _rgbm = _color.ToRGBM();
 		if (EmissiveSprite != undefined)
 		{
 			sprite_delete(EmissiveSprite);
 		}
 		EmissiveSprite = _make_sprite(
-			_red * 255.0,
-			_green * 255.0,
-			_blue * 255.0,
-			_a,
+			_rgbm[0] * 255.0,
+			_rgbm[1] * 255.0,
+			_rgbm[2] * 255.0,
+			_rgbm[3],
 		);
 		Emissive = sprite_get_texture(EmissiveSprite, 0);
 		return self;

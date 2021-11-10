@@ -44,6 +44,11 @@ function BBMOD_PBRRenderer()
 					_directionalLight.get_projection_matrix());
 			}
 		}
+		else
+		{
+			_directionalLight = new BBMOD_DirectionalLight();
+			_directionalLight.Color = new BBMOD_Color(0, 0, 0, 0);
+		}
 
 		// Shadows pass
 		if (_directionalLightCastShadows
@@ -146,6 +151,14 @@ function BBMOD_PBRRenderer()
 				catch (_ignore)
 				{
 				}
+			}
+
+			try
+			{
+				BBMOD_SHADER_CURRENT.set_directional_light(_directionalLight);
+			}
+			catch (_ignore)
+			{
 			}
 
 			_material.submit_queue()
