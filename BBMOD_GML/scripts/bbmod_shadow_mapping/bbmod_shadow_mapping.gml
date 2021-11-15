@@ -1,18 +1,18 @@
 function __bbmod_shader_shadowmap()
 {
-	static _shader = new BBMOD_Shader(BBMOD_ShShadowmap, BBMOD_VFORMAT_DEFAULT);
+	static _shader = new BBMOD_DefaultShader(BBMOD_ShShadowmap, BBMOD_VFORMAT_DEFAULT);
 	return _shader;
 }
 
 function __bbmod_shader_shadowmap_animated()
 {
-	static _shader = new BBMOD_Shader(BBMOD_ShShadowmapAnimated, BBMOD_VFORMAT_DEFAULT_ANIMATED);
+	static _shader = new BBMOD_DefaultShader(BBMOD_ShShadowmapAnimated, BBMOD_VFORMAT_DEFAULT_ANIMATED);
 	return _shader;
 }
 
 function __bbmod_shader_shadowmap_batched()
 {
-	static _shader = new BBMOD_Shader(BBMOD_ShShadowmapBatched, BBMOD_VFORMAT_DEFAULT_BATCHED);
+	static _shader = new BBMOD_DefaultShader(BBMOD_ShShadowmapBatched, BBMOD_VFORMAT_DEFAULT_BATCHED);
 	return _shader;
 }
 

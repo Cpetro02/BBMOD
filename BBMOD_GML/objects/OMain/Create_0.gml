@@ -117,11 +117,12 @@ renderer = new BBMOD_PBRRenderer()
 renderer.UseAppSurface = true;
 renderer.RenderScale = 2;
 renderer.GBuffer = true;
+renderer.ColorGradingLUT = sprite_get_texture(SprColorGrading, 0);
 
 var _lightSun = new BBMOD_DirectionalLight();
 _lightSun.CastShadows = true;
 _lightSun.ShadowmapArea = 512;
-_lightSun.ShadowmapResolution = 4096;
+_lightSun.ShadowmapResolution = 2048;
 renderer.DirectionalLight = _lightSun;
 
 // Any object/struct that has a render method can be added to the renderer:

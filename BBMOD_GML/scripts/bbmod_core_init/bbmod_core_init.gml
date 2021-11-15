@@ -18,19 +18,19 @@ function __bbmod_vformat_default_batched()
 
 function __bbmod_shader_default()
 {
-	static _shader = new BBMOD_Shader(BBMOD_ShDefault, BBMOD_VFORMAT_DEFAULT);
+	static _shader = new BBMOD_DefaultShader(BBMOD_ShDefault, BBMOD_VFORMAT_DEFAULT);
 	return _shader;
 }
 
 function __bbmod_shader_default_animated()
 {
-	static _shader = new BBMOD_Shader(BBMOD_ShDefaultAnimated, BBMOD_VFORMAT_DEFAULT_ANIMATED);
+	static _shader = new BBMOD_DefaultShader(BBMOD_ShDefaultAnimated, BBMOD_VFORMAT_DEFAULT_ANIMATED);
 	return _shader;
 }
 
 function __bbmod_shader_default_batched()
 {
-	static _shader = new BBMOD_Shader(BBMOD_ShDefaultBatched, BBMOD_VFORMAT_DEFAULT_BATCHED);
+	static _shader = new BBMOD_DefaultShader(BBMOD_ShDefaultBatched, BBMOD_VFORMAT_DEFAULT_BATCHED);
 	return _shader;
 }
 

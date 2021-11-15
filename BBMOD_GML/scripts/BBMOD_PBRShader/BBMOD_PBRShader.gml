@@ -1,10 +1,10 @@
 /// @func BBMOD_PBRShader(_shader, _vertexFormat)
-/// @extends BBMOD_Shader
+/// @extends BBMOD_DefaultShader
 /// @desc A wrapper for a raw GameMaker shader resource using PBR.
 /// @param {shader} _shader The shader resource.
 /// @param {BBMOD_VertexFormat} _vertexFormat The vertex format required by the shader.
 function BBMOD_PBRShader(_shader, _vertexFormat)
-	: BBMOD_Shader(_shader, _vertexFormat) constructor
+	: BBMOD_DefaultShader(_shader, _vertexFormat) constructor
 {
 	static Super_Shader = {
 		set_material: set_material,

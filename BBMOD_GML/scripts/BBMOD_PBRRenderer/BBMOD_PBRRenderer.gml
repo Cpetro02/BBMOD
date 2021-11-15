@@ -6,6 +6,9 @@ function BBMOD_PBRRenderer()
 	/// @var {bool}
 	GBuffer = true;
 
+	/// @var {ptr}
+	ColorGradingLUT = sprite_get_texture(BBMOD_SprColorGradingLUT, 0);
+
 	/// @var {surface}
 	/// @private
 	SurGBuffer = noone;
@@ -193,10 +196,7 @@ function BBMOD_PBRRenderer()
 			gpu_set_tex_filter(true);
 			var _shader = BBMOD_ShPostProcess;
 			shader_set(_shader);
-			texture_set_stage(shader_get_sampler_index(_shader, "u_sLut"),
-				sprite_get_texture(BBMOD_SprColorLUT, 0));
-			shader_set_uniform_f(shader_get_uniform(_shader, "u_fLutIndex"),
-				!keyboard_check(ord("C")));
+			texture_set_stage(shader_get_sampler_index(_shader, "u_texLut"), ColorGradingLUT);
 			shader_set_uniform_f(shader_get_uniform(_shader, "u_vTexel"),
 				1 / _windowWidth,
 				1 / _windowHeight);

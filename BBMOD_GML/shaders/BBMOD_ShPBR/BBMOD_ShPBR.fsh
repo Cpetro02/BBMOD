@@ -368,10 +368,11 @@ float xShadowMapCompare(sampler2D shadowMap, vec2 texel, vec2 uv, float compareZ
 	{
 		return 0.0;
 	}
-	float a = (xDecodeDepth(s) < compareZ - 0.002) ? 1.0 : 0.0;
-	float b = (xDecodeDepth(texture2D(shadowMap, (iuv+vec2(1.5,0.5))/res).rgb) < compareZ - 0.002) ? 1.0 : 0.0;
-	float c = (xDecodeDepth(texture2D(shadowMap, (iuv+vec2(0.5,1.5))/res).rgb) < compareZ - 0.002) ? 1.0 : 0.0;
-	float d = (xDecodeDepth(texture2D(shadowMap, (iuv+vec2(1.5,1.5))/res).rgb) < compareZ - 0.002) ? 1.0 : 0.0;
+	float depthBias = 0.002;
+	float a = (xDecodeDepth(s) < compareZ - depthBias) ? 1.0 : 0.0;
+	float b = (xDecodeDepth(texture2D(shadowMap, (iuv+vec2(1.5,0.5))/res).rgb) < compareZ - depthBias) ? 1.0 : 0.0;
+	float c = (xDecodeDepth(texture2D(shadowMap, (iuv+vec2(0.5,1.5))/res).rgb) < compareZ - depthBias) ? 1.0 : 0.0;
+	float d = (xDecodeDepth(texture2D(shadowMap, (iuv+vec2(1.5,1.5))/res).rgb) < compareZ - depthBias) ? 1.0 : 0.0;
 	return mix(
 		mix(a, b, fuv.x),
 		mix(c, d, fuv.x),

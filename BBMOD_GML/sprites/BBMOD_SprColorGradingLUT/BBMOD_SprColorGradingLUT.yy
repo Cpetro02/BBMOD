@@ -10,12 +10,12 @@
   "bbox_left": 0,
   "bbox_right": 255,
   "bbox_top": 0,
-  "bbox_bottom": 255,
+  "bbox_bottom": 15,
   "HTile": false,
   "VTile": false,
   "For3D": true,
   "width": 256,
-  "height": 256,
+  "height": 16,
   "textureGroupId": {
     "name": "Default",
     "path": "texturegroups/Default",
@@ -24,12 +24,12 @@
   "gridX": 0,
   "gridY": 0,
   "frames": [
-    {"compositeImage":{"FrameId":{"name":"9c1088e4-4abf-42a7-ba51-7768972da5f4","path":"sprites/BBMOD_SprColorLUT/BBMOD_SprColorLUT.yy",},"LayerId":null,"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},"images":[
-        {"FrameId":{"name":"9c1088e4-4abf-42a7-ba51-7768972da5f4","path":"sprites/BBMOD_SprColorLUT/BBMOD_SprColorLUT.yy",},"LayerId":{"name":"609ab95a-bc6f-4dd9-8bd2-12e84733b60c","path":"sprites/BBMOD_SprColorLUT/BBMOD_SprColorLUT.yy",},"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},
-      ],"parent":{"name":"BBMOD_SprColorLUT","path":"sprites/BBMOD_SprColorLUT/BBMOD_SprColorLUT.yy",},"resourceVersion":"1.0","name":"9c1088e4-4abf-42a7-ba51-7768972da5f4","tags":[],"resourceType":"GMSpriteFrame",},
+    {"compositeImage":{"FrameId":{"name":"9c1088e4-4abf-42a7-ba51-7768972da5f4","path":"sprites/BBMOD_SprColorGradingLUT/BBMOD_SprColorGradingLUT.yy",},"LayerId":null,"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},"images":[
+        {"FrameId":{"name":"9c1088e4-4abf-42a7-ba51-7768972da5f4","path":"sprites/BBMOD_SprColorGradingLUT/BBMOD_SprColorGradingLUT.yy",},"LayerId":{"name":"609ab95a-bc6f-4dd9-8bd2-12e84733b60c","path":"sprites/BBMOD_SprColorGradingLUT/BBMOD_SprColorGradingLUT.yy",},"resourceVersion":"1.0","name":"","tags":[],"resourceType":"GMSpriteBitmap",},
+      ],"parent":{"name":"BBMOD_SprColorGradingLUT","path":"sprites/BBMOD_SprColorGradingLUT/BBMOD_SprColorGradingLUT.yy",},"resourceVersion":"1.0","name":"9c1088e4-4abf-42a7-ba51-7768972da5f4","tags":[],"resourceType":"GMSpriteFrame",},
   ],
   "sequence": {
-    "spriteId": {"name":"BBMOD_SprColorLUT","path":"sprites/BBMOD_SprColorLUT/BBMOD_SprColorLUT.yy",},
+    "spriteId": {"name":"BBMOD_SprColorGradingLUT","path":"sprites/BBMOD_SprColorGradingLUT/BBMOD_SprColorGradingLUT.yy",},
     "timeUnits": 1,
     "playback": 1,
     "playbackSpeed": 30.0,
@@ -41,7 +41,7 @@
     "moments": {"Keyframes":[],"resourceVersion":"1.0","resourceType":"KeyframeStore<MomentsEventKeyframe>",},
     "tracks": [
       {"name":"frames","spriteId":null,"keyframes":{"Keyframes":[
-            {"id":"5de23214-9ac5-48eb-a9d3-e3e223a66791","Key":0.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"9c1088e4-4abf-42a7-ba51-7768972da5f4","path":"sprites/BBMOD_SprColorLUT/BBMOD_SprColorLUT.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
+            {"id":"5de23214-9ac5-48eb-a9d3-e3e223a66791","Key":0.0,"Length":1.0,"Stretch":false,"Disabled":false,"IsCreationKey":false,"Channels":{"0":{"Id":{"name":"9c1088e4-4abf-42a7-ba51-7768972da5f4","path":"sprites/BBMOD_SprColorGradingLUT/BBMOD_SprColorGradingLUT.yy",},"resourceVersion":"1.0","resourceType":"SpriteFrameKeyframe",},},"resourceVersion":"1.0","resourceType":"Keyframe<SpriteFrameKeyframe>",},
           ],"resourceVersion":"1.0","resourceType":"KeyframeStore<SpriteFrameKeyframe>",},"trackColour":0,"inheritsTrackColour":true,"builtinName":0,"traits":0,"interpolation":1,"tracks":[],"events":[],"isCreationTrack":false,"resourceVersion":"1.0","tags":[],"resourceType":"GMSpriteFramesTrack","modifiers":[],},
     ],
     "visibleRange": null,
@@ -58,9 +58,9 @@
     "yorigin": 0,
     "eventToFunction": {},
     "eventStubScript": null,
-    "parent": {"name":"BBMOD_SprColorLUT","path":"sprites/BBMOD_SprColorLUT/BBMOD_SprColorLUT.yy",},
+    "parent": {"name":"BBMOD_SprColorGradingLUT","path":"sprites/BBMOD_SprColorGradingLUT/BBMOD_SprColorGradingLUT.yy",},
     "resourceVersion": "1.3",
-    "name": "BBMOD_SprColorLUT",
+    "name": "BBMOD_SprColorGradingLUT",
     "tags": [],
     "resourceType": "GMSequence",
   },
@@ -69,11 +69,11 @@
   ],
   "nineSlice": null,
   "parent": {
-    "name": "BBMOD",
-    "path": "folders/BBMOD.yy",
+    "name": "PostProcessing",
+    "path": "folders/BBMOD/PostProcessing.yy",
   },
   "resourceVersion": "1.0",
-  "name": "BBMOD_SprColorLUT",
+  "name": "BBMOD_SprColorGradingLUT",
   "tags": [],
   "resourceType": "GMSprite",
 }
