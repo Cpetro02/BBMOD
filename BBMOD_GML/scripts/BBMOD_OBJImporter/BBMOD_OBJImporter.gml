@@ -12,6 +12,8 @@
 function BBMOD_OBJImporter()
 	: BBMOD_Importer() constructor
 {
+	BBMOD_CLASS_GENERATED_BODY;
+
 	static Super_Importer = {
 		destroy: destroy,
 	};

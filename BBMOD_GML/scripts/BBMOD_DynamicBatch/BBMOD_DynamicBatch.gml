@@ -31,6 +31,8 @@
 function BBMOD_DynamicBatch(_model, _size)
 	: BBMOD_Class() constructor
 {
+	BBMOD_CLASS_GENERATED_BODY;
+
 	static Super_Class = {
 		destroy: destroy,
 	};

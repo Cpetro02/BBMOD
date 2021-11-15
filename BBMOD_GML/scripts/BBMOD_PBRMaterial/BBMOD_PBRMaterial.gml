@@ -95,7 +95,7 @@ function BBMOD_PBRMaterial(_shader=undefined)
 	static _emissiveDefault = undefined;
 	if (_emissiveDefault == undefined)
 	{
-		set_emissive(0, 0, 0);
+		set_emissive(new BBMOD_Color(0.0, 0.0, 0.0));
 		_emissiveDefault = EmissiveSprite;
 		EmissiveSprite = undefined;
 	}

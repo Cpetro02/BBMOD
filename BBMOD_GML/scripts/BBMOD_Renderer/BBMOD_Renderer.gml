@@ -39,6 +39,8 @@
 function BBMOD_Renderer()
 	: BBMOD_Class() constructor
 {
+	BBMOD_CLASS_GENERATED_BODY;
+
 	/// @var {BBMOD_IRenderable[]} An array of renderable objects and structs.
 	/// These are automatically rendered in {@link BBMOD_Renderer.render}.
 	/// @readonly

@@ -2,11 +2,11 @@
   "isDnD": false,
   "isCompatibility": false,
   "parent": {
-    "name": "Exceptions",
-    "path": "folders/BBMOD/Core/Exceptions.yy",
+    "name": "Utils",
+    "path": "folders/BBMOD/Core/Utils.yy",
   },
   "resourceVersion": "1.0",
-  "name": "BBMOD_NotImplementedException",
+  "name": "bbmod_array_from_buffer",
   "tags": [],
   "resourceType": "GMScript",
 }

@@ -3,7 +3,7 @@
   "isCompatibility": false,
   "parent": {
     "name": "GBuffer",
-    "path": "folders/BBMOD/GBuffer.yy",
+    "path": "folders/BBMOD/Rendering/GBuffer.yy",
   },
   "resourceVersion": "1.0",
   "name": "bbmod_gbuffer",

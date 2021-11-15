@@ -4,7 +4,7 @@
 ///
 /// @example
 /// ```gml
-/// function MyEventListener() : BBMOD_Class() constructor
+/// function CMyEventListener() : BBMOD_Class() constructor
 /// {
 ///     implement(BBMOD_IEventListener);
 ///
@@ -116,7 +116,7 @@ function BBMOD_IEventListener() constructor
 	/// @return {BBMOD_IEventListener} Returns `self`.
 	trigger_event = _triggerEvent;
 
-	array_push(OnDestroy, function () {
+	array_push(__DestroyActions, function () {
 		if (Listeners != undefined)
 		{
 			ds_map_destroy(Listeners);

@@ -3,6 +3,8 @@
 function BBMOD_Light()
 	: BBMOD_Class() constructor
 {
+	BBMOD_CLASS_GENERATED_BODY;
+
 	/// @var {BBMOD_Vec3} The position of the light.
 	Position = new BBMOD_Vec3();
 

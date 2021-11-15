@@ -31,6 +31,8 @@
 function BBMOD_StaticBatch(_vformat)
 	: BBMOD_Class() constructor
 {
+	BBMOD_CLASS_GENERATED_BODY;
+
 	static Super_Class = {
 		destroy: destroy,
 	};

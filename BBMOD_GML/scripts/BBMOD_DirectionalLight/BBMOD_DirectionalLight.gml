@@ -4,6 +4,8 @@
 function BBMOD_DirectionalLight()
 	: BBMOD_Light() constructor
 {
+	BBMOD_CLASS_GENERATED_BODY;
+
 	implement(BBMOD_IRenderTarget);
 
 	static Super_Light = {

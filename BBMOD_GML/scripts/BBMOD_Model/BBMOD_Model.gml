@@ -20,6 +20,8 @@
 function BBMOD_Model(_file, _sha1)
 	: BBMOD_Class() constructor
 {
+	BBMOD_CLASS_GENERATED_BODY;
+
 	implement(BBMOD_IRenderable);
 
 	static Super_Class = {

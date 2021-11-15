@@ -3,7 +3,7 @@
   "isCompatibility": false,
   "parent": {
     "name": "ShadowMapping",
-    "path": "folders/BBMOD/ShadowMapping.yy",
+    "path": "folders/BBMOD/Rendering/ShadowMapping.yy",
   },
   "resourceVersion": "1.0",
   "name": "bbmod_shadow_mapping",

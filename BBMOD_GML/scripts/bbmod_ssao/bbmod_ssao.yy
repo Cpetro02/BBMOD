@@ -3,10 +3,10 @@
   "isCompatibility": false,
   "parent": {
     "name": "SSAO",
-    "path": "folders/BBMOD/SSAO.yy",
+    "path": "folders/BBMOD/Rendering/SSAO.yy",
   },
   "resourceVersion": "1.0",
-  "name": "scrSSAO",
+  "name": "bbmod_ssao",
   "tags": [],
   "resourceType": "GMScript",
 }

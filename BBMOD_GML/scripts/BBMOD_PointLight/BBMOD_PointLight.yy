@@ -3,7 +3,7 @@
   "isCompatibility": false,
   "parent": {
     "name": "Lights",
-    "path": "folders/BBMOD/Lights.yy",
+    "path": "folders/BBMOD/Rendering/Lights.yy",
   },
   "resourceVersion": "1.0",
   "name": "BBMOD_PointLight",

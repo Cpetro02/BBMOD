@@ -2,8 +2,8 @@
   "isDnD": false,
   "isCompatibility": false,
   "parent": {
-    "name": "Shaders",
-    "path": "folders/BBMOD/Core/Shaders.yy",
+    "name": "DefaultMaterial",
+    "path": "folders/BBMOD/Core/DefaultMaterial.yy",
   },
   "resourceVersion": "1.0",
   "name": "BBMOD_DefaultShader",

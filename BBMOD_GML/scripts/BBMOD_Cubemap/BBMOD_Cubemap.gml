@@ -27,6 +27,8 @@ enum BBMOD_ECubeSide
 function BBMOD_Cubemap(_resolution)
 	: BBMOD_Class() constructor
 {
+	BBMOD_CLASS_GENERATED_BODY;
+
 	implement(BBMOD_IRenderTarget);
 
 	static Super_Class = {
