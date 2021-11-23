@@ -20,6 +20,7 @@
 * Deprecated macros `BBMOD_RENDER_DEFERRED`, `BBMOD_RENDER_FORWARD` and `BBMOD_RENDER_SHADOWS`. Use appropriate members of `BBMOD_ERenderPass` instead, as these macros will be removed in a future release.
 * Function `bbmod_get_materials` now accepts an optional render pass argument, using which you can retrieve only materials that have a shader for a specific render pass.
 * Added new utility function `bbmod_get_calling_function_name` using which you can retrieve the name of the function that calls it.
+* Fixed methods `Reflect` of `BBMOD_Vec2`, `BBMOD_Vec3` and `BBMOD_Vec4`.
 
 ### Rendering module:
 * Added new module - Rendering - which encapsulates modules related to rendering.
