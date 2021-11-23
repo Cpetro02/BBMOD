@@ -15,7 +15,7 @@ enum BBMOD_ERenderPass
 	SIZE
 };
 
-/// @macro {BBMOD_ERenderPass} Render pass where shadow-casting are objects
+/// @macro {BBMOD_ERenderPass} Render pass where shadow-casting objects are
 /// rendered into shadow maps.
 /// @deprecated Please use {@link BBMOD_ERenderPass.Shadows} instead.
 /// @see BBMOD_ERenderPass

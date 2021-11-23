@@ -25,80 +25,6 @@ for (var i = 0; i < BBMOD_ERenderPass.SIZE; ++i)
 }
 global.__bbmodMaterials = _materials;
 
-/// @func bbmod_get_materials([_pass])
-/// @desc Retrieves an array of all existing materials, sorted by their priority.
-/// Materials with smaller priority come first in the array.
-/// @param {BBMOD_ERenderPass/undefined} [_pass] If defined, then only materials
-/// used in specified render pass will be returned.
-/// @return {BBMOD_Material[]} A read-only array of materials.
-/// @see BBMOD_Material.Priority
-/// @see BBMOD_ERenderPass
-function bbmod_get_materials(_pass=undefined)
-{
-	gml_pragma("forceinline");
-	if (_pass == undefined)
-	{
-		return global.__bbmodMaterialsAll;
-	}
-	return global.__bbmodMaterials[_pass];
-}
-
-function __bbmod_add_material(_material)
-{
-	gml_pragma("forceinline");
-	array_push(global.__bbmodMaterialsAll, _material);
-	__bbmod_reindex_materials();
-}
-
-function __bbmod_remove_material(_material)
-{
-	gml_pragma("forceinline");
-	for (var i = 0; i < array_length(global.__bbmodMaterialsAll); ++i)
-	{
-		if (global.__bbmodMaterialsAll[i] == _material)
-		{
-			array_delete(global.__bbmodMaterialsAll, i, 1);
-			break;
-		}
-	}
-	__bbmod_reindex_materials();
-}
-
-function __bbmod_sort_materials()
-{
-	gml_pragma("forceinline");
-	__bbmod_reindex_materials();
-}
-
-function __bbmod_reindex_materials()
-{
-	static _sortFn = function (_m1, _m2) {
-		if (_m2.Priority > _m1.Priority) return -1;
-		if (_m2.Priority < _m1.Priority) return +1;
-		return 0;
-	};
-
-	array_sort(global.__bbmodMaterialsAll, _sortFn);
-
-	var _materials = array_create(BBMOD_ERenderPass.SIZE);
-	var _materialCount = array_length(global.__bbmodMaterialsAll);
-
-	for (var _pass = 0; _pass < BBMOD_ERenderPass.SIZE; ++_pass)
-	{
-		_materials[_pass] = [];
-		for (var i = 0; i < _materialCount; ++i)
-		{
-			var _mat = global.__bbmodMaterialsAll[i];
-			if (_mat.has_shader(_pass))
-			{
-				array_push(_materials[_pass], _mat);
-			}
-		}
-	}
-
-	global.__bbmodMaterials = _materials;
-}
-
 /// @func BBMOD_Material([_shader])
 /// @extends BBMOD_Class
 /// @desc A material that can be used when rendering models.
@@ -524,4 +450,78 @@ function bbmod_material_reset()
 	{
 		BBMOD_SHADER_CURRENT.reset();
 	}
+}
+
+/// @func bbmod_get_materials([_pass])
+/// @desc Retrieves an array of all existing materials, sorted by their priority.
+/// Materials with smaller priority come first in the array.
+/// @param {BBMOD_ERenderPass/undefined} [_pass] If defined, then only materials
+/// used in specified render pass will be returned.
+/// @return {BBMOD_Material[]} A read-only array of materials.
+/// @see BBMOD_Material.Priority
+/// @see BBMOD_ERenderPass
+function bbmod_get_materials(_pass=undefined)
+{
+	gml_pragma("forceinline");
+	if (_pass == undefined)
+	{
+		return global.__bbmodMaterialsAll;
+	}
+	return global.__bbmodMaterials[_pass];
+}
+
+function __bbmod_add_material(_material)
+{
+	gml_pragma("forceinline");
+	array_push(global.__bbmodMaterialsAll, _material);
+	__bbmod_reindex_materials();
+}
+
+function __bbmod_remove_material(_material)
+{
+	gml_pragma("forceinline");
+	for (var i = 0; i < array_length(global.__bbmodMaterialsAll); ++i)
+	{
+		if (global.__bbmodMaterialsAll[i] == _material)
+		{
+			array_delete(global.__bbmodMaterialsAll, i, 1);
+			break;
+		}
+	}
+	__bbmod_reindex_materials();
+}
+
+function __bbmod_sort_materials()
+{
+	gml_pragma("forceinline");
+	__bbmod_reindex_materials();
+}
+
+function __bbmod_reindex_materials()
+{
+	static _sortFn = function (_m1, _m2) {
+		if (_m2.Priority > _m1.Priority) return -1;
+		if (_m2.Priority < _m1.Priority) return +1;
+		return 0;
+	};
+
+	array_sort(global.__bbmodMaterialsAll, _sortFn);
+
+	var _materials = array_create(BBMOD_ERenderPass.SIZE);
+	var _materialCount = array_length(global.__bbmodMaterialsAll);
+
+	for (var _pass = 0; _pass < BBMOD_ERenderPass.SIZE; ++_pass)
+	{
+		_materials[_pass] = [];
+		for (var i = 0; i < _materialCount; ++i)
+		{
+			var _mat = global.__bbmodMaterialsAll[i];
+			if (_mat.has_shader(_pass))
+			{
+				array_push(_materials[_pass], _mat);
+			}
+		}
+	}
+
+	global.__bbmodMaterials = _materials;
 }
