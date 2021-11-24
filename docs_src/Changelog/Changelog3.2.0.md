@@ -7,7 +7,6 @@
 * Added new methods `set_shader`, `has_shader`, `get_shader` and `remove_shader` to `BBMOD_Material`, using which you can define shaders used by the material in specific render passes.
 * Method `BBMOD_Material.apply` now returns `true` or `false` based on whether the material was applied (instead of always returning `self`).
 * Method `BBMOD_Material.submit_queue` does not longer automatically clear the queue.
-* Fixed return value of `BBMOD_Material.submit_queue`, which should have been `self`, but the method did not return anything.
 * Added new method `BBMOD_Material.clear_queue`, which clears the material's render queue.
 * Added new function `bbmod_surface_check`, which creates a new surface if it does not exist or if it has wrong size.
 * Added new interface `BBMOD_IRenderTarget` for structs that can be set as a render target.
@@ -20,7 +19,6 @@
 * Deprecated macros `BBMOD_RENDER_DEFERRED`, `BBMOD_RENDER_FORWARD` and `BBMOD_RENDER_SHADOWS`. Use appropriate members of `BBMOD_ERenderPass` instead, as these macros will be removed in a future release.
 * Function `bbmod_get_materials` now accepts an optional render pass argument, using which you can retrieve only materials that have a shader for a specific render pass.
 * Added new utility function `bbmod_get_calling_function_name` using which you can retrieve the name of the function that calls it.
-* Fixed methods `Reflect` of `BBMOD_Vec2`, `BBMOD_Vec3` and `BBMOD_Vec4`.
 
 ### Rendering module:
 * Added new module - Rendering - which encapsulates modules related to rendering.
