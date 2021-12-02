@@ -35,9 +35,13 @@ void main()
 	Vec3 lightSubsurface = Vec3(0.0);
 
 	////////////////////////////////////////////////////////////////////////////
+	// SSAO
+	float ssao = Sample(bbmod_SSAO, xUnproject(v_vPosition)).r;
+
+	////////////////////////////////////////////////////////////////////////////
 	// IBL
 	lightDiffuse += xDiffuseIBL(bbmod_IBL, bbmod_IBLTexel, N);
-	lightSpecular += xSpecularIBL(bbmod_IBL, bbmod_IBLTexel, bbmod_BRDF, material.Specular, material.Roughness, N, V);
+	lightSpecular += xSpecularIBL(bbmod_IBL, bbmod_IBLTexel, material.Specular, material.Roughness, N, V);
 
 	////////////////////////////////////////////////////////////////////////////
 	// Directional light
@@ -46,10 +50,10 @@ void main()
 	Vec3 lightColor = xGammaToLinear(xDecodeRGBM(bbmod_LightDirectionalColor));
 	lightSubsurface += xCheapSubsurface(material.Subsurface, V, N, L, lightColor);
 
-	float bias = 1.0;
-	Vec3 posShadowMap = (bbmod_ShadowmapMatrix * vec4(v_vVertex + N * bias, 1.0)).xyz;
+	Vec3 posShadowMap = (bbmod_ShadowmapMatrix * vec4(v_vVertex + N * bbmod_ShadowmapNormalOffset, 1.0)).xyz;
 	posShadowMap.xy = posShadowMap.xy * 0.5 + 0.5;
 	posShadowMap.y = 1.0 - posShadowMap.y;
+	posShadowMap.z /= bbmod_ShadowmapArea;
 	float shadow = xShadowMapPCF(bbmod_Shadowmap, bbmod_ShadowmapTexel, posShadowMap.xy, posShadowMap.z);
 
 	lightColor *= NdotL * (1.0 - shadow);
@@ -59,6 +63,9 @@ void main()
 	float VdotH = max(dot(V, H), 0.0);
 	lightDiffuse += lightColor;
 	lightSpecular += lightColor * xBRDF(material.Specular, material.Roughness, NdotL, NdotV, NdotH, VdotH);
+
+	lightDiffuse *= ssao;
+	lightSpecular *= ssao;
 
 	////////////////////////////////////////////////////////////////////////////
 	// Point lights
@@ -95,19 +102,8 @@ void main()
 		discard;
 	}
 	#if OUTPUT_DEPTH
-	gl_FragColor.rgb = xEncodeDepth(v_fDepth);
+	gl_FragColor.rgb = xEncodeDepth(v_vPosition.z / bbmod_ClipFar);
 	gl_FragColor.a = 1.0;
-	#elif GBUFFER
-	Material material = UnpackMaterial(
-		bbmod_BaseOpacity,
-		bbmod_NormalRoughness,
-		bbmod_MetallicAO,
-		bbmod_Subsurface,
-		bbmod_Emissive,
-		v_mTBN,
-		v_vTexCoord);
-	Vec3 N = material.Normal;
-	gl_FragColor = xEncodeDepth20Normal12(v_fDepth, N);
 	#else
 	gl_FragColor = baseOpacity;
 	#endif

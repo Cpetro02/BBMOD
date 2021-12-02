@@ -5,6 +5,24 @@ var _mouseLeftPressed = mouse_check_button_pressed(mb_left);
 camera.AspectRatio = window_get_width() / window_get_height();
 camera.MouseSensitivity = aiming ? 0.25 : 1.0;
 
+//if (_mouseLeftPressed)
+//{
+//	_mouseLeftPressed = false;
+//	mouseLastX = window_mouse_get_x();
+//	mouseLastY = window_mouse_get_y();
+//}
+
+//if (mouse_check_button(mb_any))
+//{
+//	var _mouseX = window_mouse_get_x();
+//	var _mouseY = window_mouse_get_y();
+//	var _mouseSens = 0.5;
+//	camera.Direction += (mouseLastX - _mouseX) * _mouseSens;
+//	camera.DirectionUp = clamp(camera.DirectionUp + (mouseLastY - _mouseY) * _mouseSens, -89, 89);
+//	mouseLastX = window_mouse_get_x();
+//	mouseLastY = window_mouse_get_y();
+//}
+
 if (!camera.MouseLook && mouse_check_button(mb_any))
 {
 	camera.set_mouselook(true);
@@ -73,9 +91,10 @@ if (!GetCutscene()
 				_shell.speed = random_range(0.2, 0.5);
 				_shell.zspeed = random_range(0.5, 1.0);
 
-				var _light = instance_create_depth(_shellPos[0], _shellPos[1], 0, OGunshotLight);
-				_light.z = _shellPos[2];
-				_light.light.Position.FromArray(_shellPos);
+				// TODO: Spawn light
+				//var _light = instance_create_depth(_shellPos[0], _shellPos[1], 0, OGunshotLight);
+				//_light.z = _shellPos[2];
+				//_light.light.Position.FromArray(_shellPos);
 
 				// Play a rundom gunshot sound
 				var _sound = choose(

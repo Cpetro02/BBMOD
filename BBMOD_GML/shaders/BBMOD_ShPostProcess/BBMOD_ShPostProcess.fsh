@@ -6,6 +6,8 @@ uniform vec2 u_vTexel;
 
 uniform float u_fDistortion;
 
+uniform float u_fGrayscale;
+
 /// @param color The original RGB color.
 /// @param lut Texture of color-grading lookup table (256x16).
 /// Needs to have interpolation enabled!
@@ -20,6 +22,12 @@ vec3 ColorGrade(vec3 color, sampler2D lut)
 		texture2D(lut, uv2 + vec2(z0, 0.0)).rgb,
 		texture2D(lut, uv2 + vec2(z1, 0.0)).rgb,
 		fract(b15));
+}
+
+float Luminance(vec3 color)
+{
+	const vec3 weights = vec3(0.2125, 0.7154, 0.0721);
+	return dot(color, weights);
 }
 
 #pragma include("ChromaticAberration.xsh", "glsl")
@@ -44,7 +52,9 @@ void main()
 {
 	vec2 vec = 0.5 - v_vTexCoord;
 	vec3 distortion = vec3(-u_vTexel.x, 0.0, u_vTexel.x) * u_fDistortion * min(length(vec) / 0.5, 1.0);
-	vec3 base = xChromaticAberration(gm_BaseTexture, v_vTexCoord, normalize(vec), distortion);
-	gl_FragColor.rgb = ColorGrade(base, u_texLut);
+	vec3 color = xChromaticAberration(gm_BaseTexture, v_vTexCoord, normalize(vec), distortion);
+	color = ColorGrade(color, u_texLut);
+	color = mix(color, vec3(Luminance(color)), u_fGrayscale);
+	gl_FragColor.rgb = color;
 	gl_FragColor.a = 1.0;
 }

@@ -7,7 +7,7 @@ varying vec3 v_vVertex;
 //varying vec4 v_vColor;
 varying vec2 v_vTexCoord;
 varying mat3 v_mTBN;
-varying float v_fDepth;
+varying vec4 v_vPosition;
 
 
 
@@ -15,7 +15,8 @@ varying float v_fDepth;
 // Pixels with alpha less than this value will be discarded.
 uniform float bbmod_AlphaTest;
 
-
+// Distance to the far clipping plane.
+uniform float bbmod_ClipFar;
 
 
 

@@ -29,12 +29,6 @@ if (_cutscene)
 // Debug
 if (false)
 {
-	if (renderer.DirectionalLight != undefined)
-	{
-		var _shadowmap = renderer.DirectionalLight.get_shadowmap_surface();
-		draw_surface_stretched(_shadowmap, 0, 0, 256, 256);
-	}
-
 	if (renderer.GBuffer)
 	{
 		draw_surface_stretched(renderer.SurGBuffer, 0, 0, _windowWidth, _windowHeight);

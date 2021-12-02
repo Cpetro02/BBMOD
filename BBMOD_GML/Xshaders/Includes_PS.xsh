@@ -2,11 +2,9 @@
 #pragma include("DepthEncoding.xsh")
 #endif
 
-#if PBR || GBUFFER
-#pragma include("Material.xsh")
-#endif
-
 #if PBR
+#pragma include("Material.xsh")
+
 #pragma include("BRDF.xsh")
 
 #pragma include("OctahedronMapping.xsh")
@@ -18,6 +16,8 @@
 #pragma include("Color.xsh")
 
 #pragma include("CheapSubsurface.xsh")
+
+#pragma include("Projecting.xsh")
 
 // #pragma include("ShadowMapping.xsh")
 /// @source https://iquilezles.org/www/articles/hwinterpolation/hwinterpolation.htm
@@ -37,10 +37,10 @@ float xShadowMapCompare(sampler2D shadowMap, vec2 texel, vec2 uv, float compareZ
 	{
 		return 0.0;
 	}
-	float a = (xDecodeDepth(s) < compareZ - 0.002) ? 1.0 : 0.0;
-	float b = (xDecodeDepth(texture2D(shadowMap, (iuv+vec2(1.5,0.5))/res).rgb) < compareZ - 0.002) ? 1.0 : 0.0;
-	float c = (xDecodeDepth(texture2D(shadowMap, (iuv+vec2(0.5,1.5))/res).rgb) < compareZ - 0.002) ? 1.0 : 0.0;
-	float d = (xDecodeDepth(texture2D(shadowMap, (iuv+vec2(1.5,1.5))/res).rgb) < compareZ - 0.002) ? 1.0 : 0.0;
+	float a = (xDecodeDepth(s) < compareZ) ? 1.0 : 0.0;
+	float b = (xDecodeDepth(texture2D(shadowMap, (iuv+vec2(1.5,0.5))/res).rgb) < compareZ) ? 1.0 : 0.0;
+	float c = (xDecodeDepth(texture2D(shadowMap, (iuv+vec2(0.5,1.5))/res).rgb) < compareZ) ? 1.0 : 0.0;
+	float d = (xDecodeDepth(texture2D(shadowMap, (iuv+vec2(1.5,1.5))/res).rgb) < compareZ) ? 1.0 : 0.0;
 	return mix(
 		mix(a, b, fuv.x),
 		mix(c, d, fuv.x),
@@ -86,8 +86,4 @@ float xShadowMapPCF(sampler2D shadowMap, vec2 texel, vec2 uv, float compareZ)
 	shadow /= samples;
 	return shadow;
 }
-#endif
-
-#if GBUFFER
-#pragma include("EncodeDepth20Normal12.xsh")
 #endif

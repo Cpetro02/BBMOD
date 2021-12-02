@@ -38,7 +38,6 @@
 * Parameter `_shader` in the constructor of `BBMOD_PBRMaterial` is now optional.
 * Method `BBMOD_PBRMaterial.set_emissive` now accepts `BBMOD_Color` as an argument. The variant with 3 arguments (one for each color channel) is kept for backwards compatibility, but it should not be used anymore, as it will be removed in a future release!
 * The PBR module now requires the Renderer module.
-* Added new struct `BBMOD_PBRRenderer`.
 
 #### Shadow mapping module:
 * Added new Rendering submodule - Shadow mapping.

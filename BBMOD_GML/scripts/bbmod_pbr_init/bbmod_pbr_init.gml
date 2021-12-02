@@ -22,8 +22,8 @@ function __bbmod_material_pbr()
 	if (_material == undefined)
 	{
 		_material = new BBMOD_PBRMaterial(BBMOD_SHADER_PBR);
-		_material.set_shader(BBMOD_RENDER_SHADOWS, BBMOD_SHADER_SHADOWMAP);
-		_material.set_shader(BBMOD_RENDER_DEFERRED, BBMOD_SHADER_GBUFFER);
+		_material.set_shader(BBMOD_RENDER_SHADOWS, BBMOD_SHADER_DEPTH);
+		_material.set_shader(BBMOD_RENDER_DEFERRED, BBMOD_SHADER_DEPTH);
 	}
 	return _material;
 }
@@ -34,8 +34,8 @@ function __bbmod_material_pbr_animated()
 	if (_material == undefined)
 	{
 		_material = new BBMOD_PBRMaterial(BBMOD_SHADER_PBR_ANIMATED);
-		_material.set_shader(BBMOD_RENDER_SHADOWS, BBMOD_SHADER_SHADOWMAP_ANIMATED);
-		_material.set_shader(BBMOD_RENDER_DEFERRED, BBMOD_SHADER_GBUFFER_ANIMATED);
+		_material.set_shader(BBMOD_RENDER_SHADOWS, BBMOD_SHADER_DEPTH_ANIMATED);
+		_material.set_shader(BBMOD_RENDER_DEFERRED, BBMOD_SHADER_DEPTH_ANIMATED);
 	}
 	return _material;
 }
@@ -46,8 +46,8 @@ function __bbmod_material_pbr_batched()
 	if (_material == undefined)
 	{
 		_material = new BBMOD_PBRMaterial(BBMOD_SHADER_PBR_BATCHED);
-		_material.set_shader(BBMOD_RENDER_SHADOWS, BBMOD_SHADER_SHADOWMAP_BATCHED);
-		_material.set_shader(BBMOD_RENDER_DEFERRED, BBMOD_SHADER_GBUFFER_BATCHED);
+		_material.set_shader(BBMOD_RENDER_SHADOWS, BBMOD_SHADER_DEPTH_BATCHED);
+		_material.set_shader(BBMOD_RENDER_DEFERRED, BBMOD_SHADER_DEPTH_BATCHED);
 	}
 	return _material;
 }

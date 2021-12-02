@@ -18,6 +18,8 @@ function BBMOD_DefaultShader(_shader, _vertexFormat)
 
 	UAlphaTest = get_uniform("bbmod_AlphaTest");
 
+	UClipFar = get_uniform("bbmod_ClipFar");
+
 	/// @func set_texture_offset(_offset)
 	/// @desc Sets the `bbmod_TextureOffset` uniform to the given offset.
 	/// @param {BBMOD_Vec2} _offset The new texture offset.
@@ -62,6 +64,11 @@ function BBMOD_DefaultShader(_shader, _vertexFormat)
 	static set_alpha_test = function (_value) {
 		gml_pragma("forceinline");
 		return set_uniform_f(UAlphaTest, _value);
+	};
+
+	static set_clip_far = function (_value) {
+		gml_pragma("forceinline");
+		return set_uniform_f(UClipFar, _value);
 	};
 
 	/// @func set_material(_material)

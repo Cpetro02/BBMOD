@@ -7,13 +7,16 @@ varying vec3 v_vVertex;
 //varying vec4 v_vColor;
 varying vec2 v_vTexCoord;
 varying mat3 v_mTBN;
-varying float v_fDepth;
+varying vec4 v_vPosition;
 
 
 
 
 // Pixels with alpha less than this value will be discarded.
 uniform float bbmod_AlphaTest;
+
+// Distance to the far clipping plane.
+uniform float bbmod_ClipFar;
 
 /// @param d Linearized depth to encode.
 /// @return Encoded depth.
@@ -43,8 +46,6 @@ float xDecodeDepth(vec3 c)
 }
 
 
-
-
 void main()
 {
 	vec4 baseOpacity = texture2D(gm_BaseTexture, v_vTexCoord);
@@ -52,7 +53,7 @@ void main()
 	{
 		discard;
 	}
-	gl_FragColor.rgb = xEncodeDepth(v_fDepth);
+	gl_FragColor.rgb = xEncodeDepth(v_vPosition.z / bbmod_ClipFar);
 	gl_FragColor.a = 1.0;
 }
 // include("Uber_PS.xsh")

@@ -1,4 +1,4 @@
-#if PBR || GBUFFER
+#if PBR
 // RGB: Base color, A: Opacity
 #define bbmod_BaseOpacity gm_BaseTexture
 
@@ -22,9 +22,6 @@ uniform Texture2D bbmod_IBL;
 // Texel size of one octahedron.
 uniform Vec2 bbmod_IBLTexel;
 
-// Preintegrated env. BRDF
-uniform Texture2D bbmod_BRDF;
-
 // Camera's position in world space
 uniform Vec3 bbmod_CamPos;
 
@@ -40,6 +37,12 @@ uniform Mat4 bbmod_ShadowmapMatrix;
 // (1.0/shadowmapWidth, 1.0/shadowmapHeight)
 uniform Vec2 bbmod_ShadowmapTexel;
 
+// The area that the shadowmap captures.
+uniform float bbmod_ShadowmapArea;
+
+// Offsets vertex position by its normal scaled by this value.
+uniform float bbmod_ShadowmapNormalOffset;
+
 // Direction of the directional light
 uniform Vec3 bbmod_LightDirectionalDir;
 
@@ -48,7 +51,13 @@ uniform Vec4 bbmod_LightDirectionalColor;
 
 // [(x, y, z, range), (r, g, b, m), ...]
 uniform Vec4 bbmod_LightPointData[MAX_LIGHTS * 2];
+
+// SSAO texture
+uniform Texture2D bbmod_SSAO;
 #endif
 
 // Pixels with alpha less than this value will be discarded.
 uniform float bbmod_AlphaTest;
+
+// Distance to the far clipping plane.
+uniform float bbmod_ClipFar;

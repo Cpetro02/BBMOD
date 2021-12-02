@@ -2,10 +2,10 @@
   "type": 1,
   "parent": {
     "name": "Shaders",
-    "path": "folders/BBMOD/Rendering/GBuffer/Shaders.yy",
+    "path": "folders/BBMOD/Rendering/DepthBuffer/Shaders.yy",
   },
   "resourceVersion": "1.0",
-  "name": "BBMOD_ShGBuffer",
+  "name": "BBMOD_ShDepth",
   "tags": [],
   "resourceType": "GMShader",
 }

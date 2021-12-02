@@ -22,8 +22,6 @@ function BBMOD_PBRShader(_shader, _vertexFormat)
 
 	UEmissive = get_sampler_index("bbmod_Emissive");
 
-	UBRDF = get_sampler_index("bbmod_BRDF");
-
 	UIBL = get_sampler_index("bbmod_IBL");
 
 	UIBLTexel = get_uniform("bbmod_IBLTexel");
@@ -34,11 +32,17 @@ function BBMOD_PBRShader(_shader, _vertexFormat)
 
 	UShadowmapTexel = get_uniform("bbmod_ShadowmapTexel");
 
+	UShadowmapArea = get_uniform("bbmod_ShadowmapArea");
+
+	UShadowmapNormalOffset = get_uniform("bbmod_ShadowmapNormalOffset");
+
 	ULightDirectionalDir = get_uniform("bbmod_LightDirectionalDir");
 
 	ULightDirectionalColor = get_uniform("bbmod_LightDirectionalColor");
 
 	ULightPointData = get_uniform("bbmod_LightPointData");
+
+	USSAO = get_sampler_index("bbmod_SSAO");
 
 	/// @func set_cam_pos(_x[, _y, _z])
 	/// @desc Sets a fragment shader uniform `bbmod_CamPos` to the given position.
@@ -116,18 +120,11 @@ function BBMOD_PBRShader(_shader, _vertexFormat)
 	/// @see bbmod_set_ibl_sprite
 	/// @see bbmod_set_ibl_texture
 	static set_ibl = function () {
-		static _texBRDF = sprite_get_texture(BBMOD_SprEnvBRDF, 0);
-
 		var _texture = global.__bbmodIblTexture;
 		if (_texture == pointer_null)
 		{
 			return self;
 		}
-
-		gpu_set_tex_mip_enable_ext(UBRDF, mip_off);
-		gpu_set_tex_filter_ext(UBRDF, true);
-		gpu_set_tex_repeat_ext(UBRDF, false);
-		set_sampler(UBRDF, _texBRDF);
 
 		gpu_set_tex_mip_enable_ext(UIBL, mip_off);
 		gpu_set_tex_filter_ext(UIBL, true);
@@ -140,12 +137,17 @@ function BBMOD_PBRShader(_shader, _vertexFormat)
 		return self;
 	};
 
-	/// @func set_shadowmap(_texture, _matrix)
-	/// @desc Sets the s
-	/// @param {ptr} _texture
-	/// @param {real[16]} _matrix
+	/// @func set_shadowmap(_texture, _matrix, _area, _normalOffset)
+	/// @desc Sets uniforms `bbmod_Shadowmap`, `bbmod_ShadowmapMatrix`,
+	/// `bbmod_ShadowmapArea` and `bbmod_ShadowmapNormalOffset`, required for
+	/// shadow mapping.
+	/// @param {ptr} _texture The shadowmap texture.
+	/// @param {real[16]} _matrix The wolrd-view-projection matrix used when
+	/// rendering the shadowmap.
+	/// @param {real} _area The area that the shadowmap captures.
+	/// @param {real} _normalOffset The area that the shadowmap captures.
 	/// @return {BBMOD_PBRShader} Returns `self`.
-	static set_shadowmap = function (_texture, _matrix) {
+	static set_shadowmap = function (_texture, _matrix, _area, _normalOffset) {
 		gml_pragma("forceinline");
 		set_sampler(UShadowmap, _texture);
 		gpu_set_tex_mip_enable_ext(UShadowmap, false);
@@ -154,6 +156,8 @@ function BBMOD_PBRShader(_shader, _vertexFormat)
 		set_uniform_f2(UShadowmapTexel,
 			texture_get_texel_width(_texture),
 			texture_get_texel_height(_texture));
+		set_uniform_f(UShadowmapArea, _area);
+		set_uniform_f(UShadowmapNormalOffset, _normalOffset);
 		set_uniform_matrix_array(UShadowmapMatrix, _matrix);
 		return self;
 	};
@@ -190,6 +194,12 @@ function BBMOD_PBRShader(_shader, _vertexFormat)
 			_light.Color.ToRGBM(_data, _index + 4);
 		}
 		set_uniform_f_array(ULightPointData, _data);
+		return self;
+	};
+
+	static set_ssao = function (_texture) {
+		gml_pragma("forceinline");
+		set_sampler(USSAO, _texture);
 		return self;
 	};
 

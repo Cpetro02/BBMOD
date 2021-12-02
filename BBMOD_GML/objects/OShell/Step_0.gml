@@ -1,4 +1,4 @@
-if (z <= 0 && !onGround)
+if (z <= 0.0 && !onGround)
 {
 	var _sound = choose(
 		SndShell0,

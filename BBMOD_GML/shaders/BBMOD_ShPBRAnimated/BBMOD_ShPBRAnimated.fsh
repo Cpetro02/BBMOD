@@ -8,7 +8,7 @@ varying vec3 v_vVertex;
 //varying vec4 v_vColor;
 varying vec2 v_vTexCoord;
 varying mat3 v_mTBN;
-varying float v_fDepth;
+varying vec4 v_vPosition;
 
 
 // RGB: Base color, A: Opacity
@@ -32,9 +32,6 @@ uniform sampler2D bbmod_IBL;
 // Texel size of one octahedron.
 uniform vec2 bbmod_IBLTexel;
 
-// Preintegrated env. BRDF
-uniform sampler2D bbmod_BRDF;
-
 // Camera's position in world space
 uniform vec3 bbmod_CamPos;
 
@@ -50,6 +47,12 @@ uniform mat4 bbmod_ShadowmapMatrix;
 // (1.0/shadowmapWidth, 1.0/shadowmapHeight)
 uniform vec2 bbmod_ShadowmapTexel;
 
+// The area that the shadowmap captures.
+uniform float bbmod_ShadowmapArea;
+
+// Offsets vertex position by its normal scaled by this value.
+uniform float bbmod_ShadowmapNormalOffset;
+
 // Direction of the directional light
 uniform vec3 bbmod_LightDirectionalDir;
 
@@ -59,8 +62,14 @@ uniform vec4 bbmod_LightDirectionalColor;
 // [(x, y, z, range), (r, g, b, m), ...]
 uniform vec4 bbmod_LightPointData[MAX_LIGHTS * 2];
 
+// SSAO texture
+uniform sampler2D bbmod_SSAO;
+
 // Pixels with alpha less than this value will be discarded.
 uniform float bbmod_AlphaTest;
+
+// Distance to the far clipping plane.
+uniform float bbmod_ClipFar;
 
 /// @param d Linearized depth to encode.
 /// @return Encoded depth.
@@ -222,6 +231,17 @@ float xSpecularD_GGX(float roughness, float NdotH)
 	return r / (X_PI * a * a);
 }
 
+/// @source https://www.unrealengine.com/en-US/blog/physically-based-shading-on-mobile
+float xSpecularD_Approx(float roughness, float RdotL)
+{
+	float a = roughness * roughness;
+	float a2 = a * a;
+	float rcp_a2 = 1.0 / a2;
+	// 0.5 / ln(2), 0.275 / ln(2)
+	float c = (0.72134752 * rcp_a2) + 0.39674113;
+	return (rcp_a2 * exp2((c * RdotL) - c));
+}
+
 /// @desc Roughness remapping for analytic lights.
 /// @source http://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_notes_v2.pdf
 float xK_Analytic(float roughness)
@@ -249,7 +269,7 @@ float xSpecularG_Schlick(float k, float NdotL, float NdotV)
 /// @source https://en.wikipedia.org/wiki/Schlick%27s_approximation
 vec3 xSpecularF_Schlick(vec3 f0, float VdotH)
 {
-	return f0 + (1.0 - f0) * xPow5(1.0 - VdotH); 
+	return f0 + (1.0 - f0) * xPow5(1.0 - VdotH);
 }
 
 /// @desc Cook-Torrance microfacet specular shading
@@ -310,12 +330,38 @@ vec3 xDiffuseIBL(sampler2D ibl, vec2 texel, vec3 N)
 	return xGammaToLinear(xDecodeRGBM(texture2D(ibl, uv0)));
 }
 
+/// @source https://www.unrealengine.com/en-US/blog/physically-based-shading-on-mobile
+vec2 xEnvBRDFApprox(float roughness, float NdotV)
+{
+	const vec4 c0 = vec4(-1.0, -0.0275, -0.572, 0.022);
+	const vec4 c1 = vec4(1.0, 0.0425, 1.04, -0.04);
+	vec4 r = (roughness * c0) + c1;
+	float a004 = (min(r.x * r.x, exp2(-9.28 * NdotV)) * r.x) + r.y;
+	return ((vec2(-1.04, 1.04) * a004) + r.zw);
+}
+
+/// @source https://www.unrealengine.com/en-US/blog/physically-based-shading-on-mobile
+float xEnvBRDFApproxNonmetal(float roughness, float NdotV)
+{
+	// Same as EnvBRDFApprox(0.04, Roughness, NdotV)
+	const vec2 c0 = vec2(-1.0, -0.0275);
+	const vec2 c1 = vec2(1.0, 0.0425);
+	vec2 r = (roughness * c0) + c1;
+	return (min(r.x * r.x, exp2(-9.28 * NdotV)) * r.x) + r.y;
+}
+
+// Fully rough optimization:
+// xEnvBRDFApprox(SpecularColor, 1, 1) == SpecularColor * 0.4524 - 0.0024
+// DiffuseColor += SpecularColor * 0.45;
+// SpecularColor = 0.0;
+
 /// @source http://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_notes_v2.pdf
-vec3 xSpecularIBL(sampler2D ibl, vec2 texel, sampler2D brdf, vec3 f0, float roughness, vec3 N, vec3 V)
+vec3 xSpecularIBL(sampler2D ibl, vec2 texel/*, sampler2D brdf*/, vec3 f0, float roughness, vec3 N, vec3 V)
 {
 	float NdotV = clamp(dot(N, V), 0.0, 1.0);
 	vec3 R = 2.0 * dot(V, N) * N - V;
-	vec2 envBRDF = texture2D(brdf, vec2(roughness, NdotV)).xy;
+	// vec2 envBRDF = texture2D(brdf, vec2(roughness, NdotV)).xy;
+	vec2 envBRDF = xEnvBRDFApprox(roughness, NdotV);
 
 	const float s = 1.0 / 8.0;
 	float r = roughness * 7.0;
@@ -350,6 +396,27 @@ vec3 xCheapSubsurface(vec4 subsurface, vec3 eye, vec3 normal, vec3 light, vec3 l
 	return subsurface.rgb * lightColor * fLT;
 }
 
+/// @param tanAspect (tanFovY*(screenWidth/screenHeight),-tanFovY), where
+///                  tanFovY = dtan(fov*0.5)
+/// @param texCoord  Sceen-space UV.
+/// @param depth     Scene depth at texCoord.
+/// @return Point projected to view-space.
+vec3 xProject(vec2 tanAspect, vec2 texCoord, float depth)
+{
+	return vec3(tanAspect * (texCoord * 2.0 - 1.0) * depth, depth);
+}
+
+/// @param p A point in clip space (transformed by projection matrix, but not
+///          normalized).
+/// @return P's UV coordinates on the screen.
+vec2 xUnproject(vec4 p)
+{
+	vec2 uv = p.xy / p.w;
+	uv = uv * 0.5 + 0.5;
+	uv.y = 1.0 - uv.y;
+	return uv;
+}
+
 // #pragma include("ShadowMapping.xsh")
 /// @source https://iquilezles.org/www/articles/hwinterpolation/hwinterpolation.htm
 float xShadowMapCompare(sampler2D shadowMap, vec2 texel, vec2 uv, float compareZ)
@@ -368,10 +435,10 @@ float xShadowMapCompare(sampler2D shadowMap, vec2 texel, vec2 uv, float compareZ
 	{
 		return 0.0;
 	}
-	float a = (xDecodeDepth(s) < compareZ - 0.002) ? 1.0 : 0.0;
-	float b = (xDecodeDepth(texture2D(shadowMap, (iuv+vec2(1.5,0.5))/res).rgb) < compareZ - 0.002) ? 1.0 : 0.0;
-	float c = (xDecodeDepth(texture2D(shadowMap, (iuv+vec2(0.5,1.5))/res).rgb) < compareZ - 0.002) ? 1.0 : 0.0;
-	float d = (xDecodeDepth(texture2D(shadowMap, (iuv+vec2(1.5,1.5))/res).rgb) < compareZ - 0.002) ? 1.0 : 0.0;
+	float a = (xDecodeDepth(s) < compareZ) ? 1.0 : 0.0;
+	float b = (xDecodeDepth(texture2D(shadowMap, (iuv+vec2(1.5,0.5))/res).rgb) < compareZ) ? 1.0 : 0.0;
+	float c = (xDecodeDepth(texture2D(shadowMap, (iuv+vec2(0.5,1.5))/res).rgb) < compareZ) ? 1.0 : 0.0;
+	float d = (xDecodeDepth(texture2D(shadowMap, (iuv+vec2(1.5,1.5))/res).rgb) < compareZ) ? 1.0 : 0.0;
 	return mix(
 		mix(a, b, fuv.x),
 		mix(c, d, fuv.x),
@@ -398,7 +465,6 @@ float xShadowMapPCF(sampler2D shadowMap, vec2 texel, vec2 uv, float compareZ)
 	return shadow;
 }
 
-
 void main()
 {
 	Material material = UnpackMaterial(
@@ -423,9 +489,13 @@ void main()
 	vec3 lightSubsurface = vec3(0.0);
 
 	////////////////////////////////////////////////////////////////////////////
+	// SSAO
+	float ssao = texture2D(bbmod_SSAO, xUnproject(v_vPosition)).r;
+
+	////////////////////////////////////////////////////////////////////////////
 	// IBL
 	lightDiffuse += xDiffuseIBL(bbmod_IBL, bbmod_IBLTexel, N);
-	lightSpecular += xSpecularIBL(bbmod_IBL, bbmod_IBLTexel, bbmod_BRDF, material.Specular, material.Roughness, N, V);
+	lightSpecular += xSpecularIBL(bbmod_IBL, bbmod_IBLTexel, material.Specular, material.Roughness, N, V);
 
 	////////////////////////////////////////////////////////////////////////////
 	// Directional light
@@ -434,10 +504,10 @@ void main()
 	vec3 lightColor = xGammaToLinear(xDecodeRGBM(bbmod_LightDirectionalColor));
 	lightSubsurface += xCheapSubsurface(material.Subsurface, V, N, L, lightColor);
 
-	float bias = 1.0;
-	vec3 posShadowMap = (bbmod_ShadowmapMatrix * vec4(v_vVertex + N * bias, 1.0)).xyz;
+	vec3 posShadowMap = (bbmod_ShadowmapMatrix * vec4(v_vVertex + N * bbmod_ShadowmapNormalOffset, 1.0)).xyz;
 	posShadowMap.xy = posShadowMap.xy * 0.5 + 0.5;
 	posShadowMap.y = 1.0 - posShadowMap.y;
+	posShadowMap.z /= bbmod_ShadowmapArea;
 	float shadow = xShadowMapPCF(bbmod_Shadowmap, bbmod_ShadowmapTexel, posShadowMap.xy, posShadowMap.z);
 
 	lightColor *= NdotL * (1.0 - shadow);
@@ -447,6 +517,9 @@ void main()
 	float VdotH = max(dot(V, H), 0.0);
 	lightDiffuse += lightColor;
 	lightSpecular += lightColor * xBRDF(material.Specular, material.Roughness, NdotL, NdotV, NdotH, VdotH);
+
+	lightDiffuse *= ssao;
+	lightSpecular *= ssao;
 
 	////////////////////////////////////////////////////////////////////////////
 	// Point lights

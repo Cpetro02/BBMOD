@@ -64,7 +64,7 @@ void main()
 #endif
 
 	gl_Position = MUL(gm_Matrices[MATRIX_WORLD_VIEW_PROJECTION], position);
-	v_fDepth = gl_Position.z;
+	v_vPosition = MUL(gm_Matrices[MATRIX_WORLD_VIEW_PROJECTION], position);
 	v_vVertex = MUL(gm_Matrices[MATRIX_WORLD], position).xyz;
 	//v_vColor = in_Color;
 	v_vTexCoord = bbmod_TextureOffset + in_TextureCoord0 * bbmod_TextureScale;
