@@ -278,7 +278,6 @@ function BBMOD_Renderer()
 		if (_directionalLight == undefined)
 		{
 			_directionalLight = new BBMOD_DirectionalLight();
-			_directionalLight.Color = new BBMOD_Color(0.0, 0.0, 0.0, 0.0);
 			_directionalLight.CastShadows = false;
 		}
 
@@ -415,8 +414,7 @@ function BBMOD_Renderer()
 		var _ambientLightUp = AmbientLightUp;
 		var _ambientLightDown = AmbientLightDown;
 		var _imageBasedLight = ImageBasedLight ?? bbmod_ibl_null();
-		var _directionalLight = DirectionalLight
-			?? new BBMOD_DirectionalLight(new BBMOD_Vec3(1.0), new BBMOD_Color(0.0, 0.0, 0.0, 0.0));
+		var _directionalLight = DirectionalLight;
 		var _shadowmapTexture = surface_get_texture(SurShadowmap);
 		var _shadowmapMatrix = get_shadowmap_matrix();
 		var _shadowmapArea = ShadowmapArea;

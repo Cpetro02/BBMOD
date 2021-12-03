@@ -112,7 +112,8 @@ renderer = new BBMOD_Renderer()
 	.add(OCharacter)
 	.add(OGun)
 	.add(OLever)
-	.add(OSky);
+	.add(OSky)
+	;
 
 renderer.UseAppSurface = true;
 renderer.RenderScale = 2.0;

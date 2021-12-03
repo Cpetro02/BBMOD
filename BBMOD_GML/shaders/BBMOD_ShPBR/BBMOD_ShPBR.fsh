@@ -471,13 +471,14 @@ float xShadowMapPCF(sampler2D shadowMap, vec2 texel, vec2 uv, float compareZ)
 	return shadow;
 }
 
-vec3 SpecularAmbient(vec3 ambientLight, vec3 f0, float roughness, vec3 N, vec3 V)
+vec3 SpecularAmbient(vec3 ambientUp, vec3 ambientDown, vec3 f0, float roughness, vec3 N, vec3 V)
 {
 	float NdotV = clamp(dot(N, V), 0.0, 1.0);
 	vec3 R = 2.0 * dot(V, N) * N - V;
 	vec2 envBRDF = xEnvBRDFApprox(roughness, NdotV);
 	vec3 specular = f0 * envBRDF.x + envBRDF.y;
-	return ambientLight * specular;
+	vec3 ambient = mix(ambientDown, ambientUp, R.z * 0.5 + 0.5);
+	return ambient * specular;
 }
 
 void main()
@@ -509,9 +510,10 @@ void main()
 
 	////////////////////////////////////////////////////////////////////////////
 	// Ambient light
-	vec3 lightAmbient = xGammaToLinear(xDecodeRGBM(mix(bbmod_AmbientDown, bbmod_AmbientUp, N.z * 0.5 + 0.5)));
-	lightDiffuse += lightAmbient;
-	lightSpecular += SpecularAmbient(lightAmbient, material.Specular, material.Roughness, N, V);
+	vec3 ambientUp = xGammaToLinear(xDecodeRGBM(bbmod_AmbientUp));
+	vec3 ambientDown = xGammaToLinear(xDecodeRGBM(bbmod_AmbientDown));
+	lightDiffuse += mix(ambientDown, ambientUp, N.z * 0.5 + 0.5);
+	lightSpecular += SpecularAmbient(ambientUp, ambientDown, material.Specular, material.Roughness, N, V);
 
 	////////////////////////////////////////////////////////////////////////////
 	// Image based light

@@ -87,12 +87,13 @@ float xShadowMapPCF(sampler2D shadowMap, vec2 texel, vec2 uv, float compareZ)
 	return shadow;
 }
 
-Vec3 SpecularAmbient(Vec3 ambientLight, Vec3 f0, float roughness, Vec3 N, Vec3 V)
+Vec3 SpecularAmbient(Vec3 ambientUp, Vec3 ambientDown, Vec3 f0, float roughness, Vec3 N, Vec3 V)
 {
 	float NdotV = clamp(dot(N, V), 0.0, 1.0);
 	Vec3 R = 2.0 * dot(V, N) * N - V;
 	Vec2 envBRDF = xEnvBRDFApprox(roughness, NdotV);
 	Vec3 specular = f0 * envBRDF.x + envBRDF.y;
-	return ambientLight * specular;
+	Vec3 ambient = Lerp(ambientDown, ambientUp, R.z * 0.5 + 0.5);
+	return ambient * specular;
 }
 #endif

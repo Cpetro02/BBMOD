@@ -40,9 +40,10 @@ void main()
 
 	////////////////////////////////////////////////////////////////////////////
 	// Ambient light
-	vec3 lightAmbient = xGammaToLinear(xDecodeRGBM(Lerp(bbmod_AmbientDown, bbmod_AmbientUp, N.z * 0.5 + 0.5)));
-	lightDiffuse += lightAmbient;
-	lightSpecular += SpecularAmbient(lightAmbient, material.Specular, material.Roughness, N, V);
+	Vec3 ambientUp = xGammaToLinear(xDecodeRGBM(bbmod_AmbientUp));
+	Vec3 ambientDown = xGammaToLinear(xDecodeRGBM(bbmod_AmbientDown));
+	lightDiffuse += Lerp(ambientDown, ambientUp, N.z * 0.5 + 0.5);
+	lightSpecular += SpecularAmbient(ambientUp, ambientDown, material.Specular, material.Roughness, N, V);
 
 	////////////////////////////////////////////////////////////////////////////
 	// Image based light
