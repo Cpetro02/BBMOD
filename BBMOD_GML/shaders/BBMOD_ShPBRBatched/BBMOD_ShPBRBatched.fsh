@@ -26,6 +26,12 @@ uniform sampler2D bbmod_Subsurface;
 // RGBM encoded emissive color
 uniform sampler2D bbmod_Emissive;
 
+// RGBM encoded ambient light color on the upper hemisphere.
+uniform vec4 bbmod_AmbientUp;
+
+/// RGBM encoded ambient light color on the lower hemisphere.
+uniform vec4 bbmod_AmbientDown;
+
 // Prefiltered octahedron env. map
 uniform sampler2D bbmod_IBL;
 
@@ -465,6 +471,15 @@ float xShadowMapPCF(sampler2D shadowMap, vec2 texel, vec2 uv, float compareZ)
 	return shadow;
 }
 
+vec3 SpecularAmbient(vec3 ambientLight, vec3 f0, float roughness, vec3 N, vec3 V)
+{
+	float NdotV = clamp(dot(N, V), 0.0, 1.0);
+	vec3 R = 2.0 * dot(V, N) * N - V;
+	vec2 envBRDF = xEnvBRDFApprox(roughness, NdotV);
+	vec3 specular = f0 * envBRDF.x + envBRDF.y;
+	return ambientLight * specular;
+}
+
 void main()
 {
 	Material material = UnpackMaterial(
@@ -493,7 +508,13 @@ void main()
 	float ssao = texture2D(bbmod_SSAO, xUnproject(v_vPosition)).r;
 
 	////////////////////////////////////////////////////////////////////////////
-	// IBL
+	// Ambient light
+	vec3 lightAmbient = xGammaToLinear(xDecodeRGBM(mix(bbmod_AmbientDown, bbmod_AmbientUp, N.z * 0.5 + 0.5)));
+	lightDiffuse += lightAmbient;
+	lightSpecular += SpecularAmbient(lightAmbient, material.Specular, material.Roughness, N, V);
+
+	////////////////////////////////////////////////////////////////////////////
+	// Image based light
 	lightDiffuse += xDiffuseIBL(bbmod_IBL, bbmod_IBLTexel, N);
 	lightSpecular += xSpecularIBL(bbmod_IBL, bbmod_IBLTexel, material.Specular, material.Roughness, N, V);
 

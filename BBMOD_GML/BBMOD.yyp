@@ -100,6 +100,7 @@
     {"id":{"name":"BBMOD_ShDefault","path":"shaders/BBMOD_ShDefault/BBMOD_ShDefault.yy",},"order":1,},
     {"id":{"name":"OShell","path":"objects/OShell/OShell.yy",},"order":9,},
     {"id":{"name":"bbmod_depth_buffer","path":"scripts/bbmod_depth_buffer/bbmod_depth_buffer.yy",},"order":5,},
+    {"id":{"name":"BBMOD_ImageBasedLight","path":"scripts/BBMOD_ImageBasedLight/BBMOD_ImageBasedLight.yy",},"order":3,},
     {"id":{"name":"BBMOD_StaticBatch","path":"scripts/BBMOD_StaticBatch/BBMOD_StaticBatch.yy",},"order":1,},
     {"id":{"name":"OObject3D","path":"objects/OObject3D/OObject3D.yy",},"order":1,},
     {"id":{"name":"SprZombie","path":"sprites/SprZombie/SprZombie.yy",},"order":1,},

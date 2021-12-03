@@ -39,7 +39,13 @@ void main()
 	float ssao = Sample(bbmod_SSAO, xUnproject(v_vPosition)).r;
 
 	////////////////////////////////////////////////////////////////////////////
-	// IBL
+	// Ambient light
+	vec3 lightAmbient = xGammaToLinear(xDecodeRGBM(Lerp(bbmod_AmbientDown, bbmod_AmbientUp, N.z * 0.5 + 0.5)));
+	lightDiffuse += lightAmbient;
+	lightSpecular += SpecularAmbient(lightAmbient, material.Specular, material.Roughness, N, V);
+
+	////////////////////////////////////////////////////////////////////////////
+	// Image based light
 	lightDiffuse += xDiffuseIBL(bbmod_IBL, bbmod_IBLTexel, N);
 	lightSpecular += xSpecularIBL(bbmod_IBL, bbmod_IBLTexel, material.Specular, material.Roughness, N, V);
 

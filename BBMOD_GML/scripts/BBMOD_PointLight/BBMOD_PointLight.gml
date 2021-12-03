@@ -12,13 +12,11 @@ function BBMOD_PointLight(_color=undefined, _position=undefined, _range=1.0)
 	/// @var {real} The range of the light.
 	Range = _range;
 
+	/// @var {BBMOD_Color} The color of the light. Defaults to white.
+	Color = (_color != undefined) ? _color : new BBMOD_Color();
+
 	if (_position != undefined)
 	{
 		Position = _position;
-	}
-
-	if (_color != undefined)
-	{
-		Color = _color;
 	}
 }

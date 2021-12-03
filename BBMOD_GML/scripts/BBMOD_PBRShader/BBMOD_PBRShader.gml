@@ -22,6 +22,10 @@ function BBMOD_PBRShader(_shader, _vertexFormat)
 
 	UEmissive = get_sampler_index("bbmod_Emissive");
 
+	UAmbientUp = get_uniform("bbmod_AmbientUp");
+
+	UAmbientDown = get_uniform("bbmod_AmbientDown");
+
 	UIBL = get_sampler_index("bbmod_IBL");
 
 	UIBLTexel = get_uniform("bbmod_IBLTexel");
@@ -112,28 +116,47 @@ function BBMOD_PBRShader(_shader, _vertexFormat)
 		return set_sampler(UEmissive, _texture);
 	};
 
-	/// @func set_ibl()
+	/// @func set_ambient_light(_up, _down)
+	/// @desc Sets the `bbmod_AmbientUp`, `bbmod_AmbientDown` uniforms.
+	/// @param {BBMOD_Color} _up The new RGBM encoded ambient light color on the upper hemisphere.
+	/// @param {BBMOD_Color} _down The new RGBM encoded ambient light color on the lower hemisphere.
+	/// @return {BBMOD_PBRShader} Returns `self`.
+	static set_ambient_light = function (_up, _down) {
+		gml_pragma("forceinline");
+		set_uniform_f_array(UAmbientUp, _up.ToRGBM());
+		set_uniform_f_array(UAmbientDown, _down.ToRGBM());
+		return self;
+	};
+
+	/// @func set_image_based_light(_imageBasedLight)
 	/// @desc Sets a fragment shader uniform `bbmod_IBLTexel` and samplers
 	/// `bbmod_IBL` and `bbmod_BRDF`. These are required for image based
 	/// lighting.
+	/// @param {BBMOD_ImageBasedLight} _imageBasedLight The image based light.
 	/// @return {BBMOD_PBRShader} Returns `self`.
-	/// @see bbmod_set_ibl_sprite
-	/// @see bbmod_set_ibl_texture
-	static set_ibl = function () {
-		var _texture = global.__bbmodIblTexture;
-		if (_texture == pointer_null)
-		{
-			return self;
-		}
-
+	/// @see BBMOD_ImageBasedLight
+	static set_image_based_light = function (_imageBasedLight) {
+		gml_pragma("forceinline");
 		gpu_set_tex_mip_enable_ext(UIBL, mip_off);
 		gpu_set_tex_filter_ext(UIBL, true);
 		gpu_set_tex_repeat_ext(UIBL, false);
-		set_sampler(UIBL, _texture);
-
-		var _texel = global.__bbmodIblTexel;
+		set_sampler(UIBL, _imageBasedLight.Texture);
+		var _texel = _imageBasedLight.Texel;
 		set_uniform_f(UIBLTexel, _texel, _texel);
+		return self;
+	};
 
+	/// @func set_directional_light(_light)
+	/// @desc Sets uniforms `bbmod_LightDirectionalDir` and
+	/// `bbmod_LightDirectionalColor`.
+	/// @param {BBMOD_DirectionalLight} _light The directional light.
+	/// @return {BBMOD_PBRShader} Returns `self`.
+	/// @see BBMOD_DirectionalLight
+	static set_directional_light = function (_light) {
+		gml_pragma("forceinline");
+		var _direction = _light.Direction;
+		set_uniform_f3(ULightDirectionalDir, _direction.X, _direction.Y, _direction.Z);
+		set_uniform_f_array(ULightDirectionalColor, _light.Color.ToRGBM());
 		return self;
 	};
 
@@ -162,20 +185,6 @@ function BBMOD_PBRShader(_shader, _vertexFormat)
 		return self;
 	};
 
-	/// @func set_directional_light(_light)
-	/// @desc Sets uniforms `bbmod_LightDirectionalDir` and
-	/// `bbmod_LightDirectionalColor`.
-	/// @param {BBMOD_DirectionalLight} _light The directional light.
-	/// @return {BBMOD_PBRShader} Returns `self`.
-	/// @see BBMOD_DirectionalLight
-	static set_directional_light = function (_light) {
-		gml_pragma("forceinline");
-		var _direction = _light.Direction;
-		set_uniform_f3(ULightDirectionalDir, _direction.X, _direction.Y, _direction.Z);
-		set_uniform_f_array(ULightDirectionalColor, _light.Color.ToRGBM());
-		return self;
-	};
-
 	/// @func set_point_lights(_lights)
 	/// @desc Sets uniform `bbmod_LightPointData`.
 	/// @param {BBMOD_PointLight[]} _lights An array of point lights.
@@ -197,6 +206,10 @@ function BBMOD_PBRShader(_shader, _vertexFormat)
 		return self;
 	};
 
+	/// @func set_ssao(_texture)
+	/// @desc Sets uniform `bbmod_SSAO`.
+	/// @param {ptr} _texture The SSAO texture.
+	/// @return {BBMOD_PBRShader} Returns `self`.
 	static set_ssao = function (_texture) {
 		gml_pragma("forceinline");
 		set_sampler(USSAO, _texture);
@@ -210,9 +223,6 @@ function BBMOD_PBRShader(_shader, _vertexFormat)
 		set_normal_roughness(_material.NormalRoughness);
 		set_subsurface(_material.Subsurface);
 		set_emissive(_material.Emissive);
-		set_cam_pos(global.bbmod_camera_position);
-		set_exposure(global.bbmod_camera_exposure);
-		set_ibl();
 		return self;
 	};
 }

@@ -120,6 +120,10 @@ renderer.EnableGBuffer = true;
 renderer.EnableSSAO = true;
 renderer.ColorGradingLUT = sprite_get_texture(SprColorGrading, 0);
 
+var _sprIbl = sprite_add("Data/BBMOD/Skies/IBL+80.png", 0, false, true, 0, 0);
+var _lightSky = new BBMOD_ImageBasedLight(sprite_get_texture(_sprIbl, 0));
+renderer.ImageBasedLight = _lightSky;
+
 var _lightSun = new BBMOD_DirectionalLight();
 _lightSun.CastShadows = true;
 renderer.DirectionalLight = _lightSun;

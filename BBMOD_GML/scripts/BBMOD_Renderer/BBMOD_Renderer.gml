@@ -80,6 +80,17 @@ function BBMOD_Renderer()
 	/// @var {real} Resolution multiplier for SSAO surface. Defaults to 1.
 	SSAOScale = 1.0;
 
+	/// @var {BBMOD_Color} The color of the ambient light on the upper hemisphere.
+	/// Defaults to black.
+	AmbientLightUp = new BBMOD_Color(0, 0, 0);
+
+	/// @var {BBMOD_Color} The color of the ambient light on the lower hemisphere.
+	/// Defaults to black.
+	AmbientLightDown = new BBMOD_Color(0, 0, 0);
+
+	/// @var {BBMOD_ImageBasedLight/undefined} An image based light.
+	ImageBasedLight = undefined;
+
 	/// @var {BBMOD_DirectionalLight/undefined} The directional light.
 	DirectionalLight = undefined;
 
@@ -160,6 +171,34 @@ function BBMOD_Renderer()
 			if (Renderables[i] == _renderable)
 			{
 				array_delete(Renderables, i, 1);
+			}
+		}
+		return self;
+	};
+
+	/// @func add_point_light(_pointLight)
+	/// @desc Adds a point light to the renderer.
+	/// @param {BBMOD_PointLight} _pointLight The point light to add.
+	/// @return {BBMOD_Renderer} Returns `self`.
+	/// @see BBMOD_PointLight
+	static add_point_light = function (_pointLight) {
+		gml_pragma("forceinline");
+		array_push(PointLights, _pointLight);
+		return self;
+	};
+
+	/// @func remove_point_light(_pointLight)
+	/// @desc Removes a point light from the renderer.
+	/// @param {BBMOD_PointLight} _pointLight The point light to remove.
+	/// @return {BBMOD_Renderer} Returns `self`.
+	/// @see BBMOD_PointLight
+	static add_point_light = function (_pointLight) {
+		gml_pragma("forceinline");
+		for (var i = array_length(PointLights) - 1; i >= 0; --i)
+		{
+			if (PointLights[i] == _pointLight)
+			{
+				array_delete(PointLights, i, 1);
 			}
 		}
 		return self;
@@ -373,9 +412,11 @@ function BBMOD_Renderer()
 		_materials = bbmod_get_materials(global.bbmod_render_pass);
 		m = 0;
 
-		var _directionalLight = (DirectionalLight != undefined)
-			? DirectionalLight
-			: new BBMOD_DirectionalLight(new BBMOD_Vec3(1.0), new BBMOD_Color(0.0, 0.0, 0.0, 0.0));
+		var _ambientLightUp = AmbientLightUp;
+		var _ambientLightDown = AmbientLightDown;
+		var _imageBasedLight = ImageBasedLight ?? bbmod_ibl_null();
+		var _directionalLight = DirectionalLight
+			?? new BBMOD_DirectionalLight(new BBMOD_Vec3(1.0), new BBMOD_Color(0.0, 0.0, 0.0, 0.0));
 		var _shadowmapTexture = surface_get_texture(SurShadowmap);
 		var _shadowmapMatrix = get_shadowmap_matrix();
 		var _shadowmapArea = ShadowmapArea;
@@ -393,17 +434,29 @@ function BBMOD_Renderer()
 
 			try
 			{
-				BBMOD_SHADER_CURRENT.set_shadowmap(
-					_shadowmapTexture,
-					_shadowmapMatrix,
-					_shadowmapArea,
-					_shadowmapNormalOffset);
+				BBMOD_SHADER_CURRENT.set_ambient_light(_ambientLightUp, _ambientLightDown);
+			}
+			catch (_ignore) {}
+
+			try
+			{
+				BBMOD_SHADER_CURRENT.set_image_based_light(_imageBasedLight);
 			}
 			catch (_ignore) {}
 
 			try
 			{
 				BBMOD_SHADER_CURRENT.set_directional_light(_directionalLight);
+			}
+			catch (_ignore) {}
+
+			try
+			{
+				BBMOD_SHADER_CURRENT.set_shadowmap(
+					_shadowmapTexture,
+					_shadowmapMatrix,
+					_shadowmapArea,
+					_shadowmapNormalOffset);
 			}
 			catch (_ignore) {}
 
@@ -416,6 +469,18 @@ function BBMOD_Renderer()
 			try
 			{
 				BBMOD_SHADER_CURRENT.set_ssao(surface_get_texture(SurSSAO));
+			}
+			catch (_ignore) {}
+
+			try
+			{
+				BBMOD_SHADER_CURRENT.set_cam_pos(global.bbmod_camera_position);
+			}
+			catch (_ignore) {}
+
+			try
+			{
+				BBMOD_SHADER_CURRENT.set_exposure(global.bbmod_camera_exposure);
 			}
 			catch (_ignore) {}
 

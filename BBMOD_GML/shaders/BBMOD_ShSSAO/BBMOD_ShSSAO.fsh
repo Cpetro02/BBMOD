@@ -140,7 +140,7 @@ void main()
 
 		float angle = acos(dot(diffLeft, diffRight) / (length(diffLeft) * length(diffRight))) / X_PI;
 
-		if (-diffLeft.z - diffRight.z < 0.2)
+		if (-diffLeft.z - diffRight.z < 0.4)
 		{
 			angle = 1.0;
 		}

@@ -16,6 +16,12 @@ uniform Texture2D bbmod_Emissive;
 #endif
 
 #if PBR
+// RGBM encoded ambient light color on the upper hemisphere.
+uniform Vec4 bbmod_AmbientUp;
+
+/// RGBM encoded ambient light color on the lower hemisphere.
+uniform Vec4 bbmod_AmbientDown;
+
 // Prefiltered octahedron env. map
 uniform Texture2D bbmod_IBL;
 
