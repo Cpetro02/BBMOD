@@ -124,7 +124,6 @@ function ssao_draw(_surSsao, _surWork, _surGBuffer, _matProj, _clipFar)
 	matrix_set(matrix_world, matrix_build_identity());
 	camera_apply(_cam);
 	draw_clear(c_white);
-
 	shader_set(BBMOD_ShSSAO);
 	texture_set_stage(uSsaoTexNoise, surface_get_texture(surSsaoNoise));
 	gpu_set_texrepeat_ext(uSsaoTexNoise, true);
@@ -138,10 +137,9 @@ function ssao_draw(_surSsao, _surWork, _surGBuffer, _matProj, _clipFar)
 	shader_set_uniform_f(uSsaoBias, ssaoBias);
 	draw_surface_stretched(_surGBuffer, 0, 0, _width, _height);
 	shader_reset();
-
 	surface_reset_target();
 
-	gpu_set_tex_filter(true);
+	gpu_set_tex_filter(false);
 
 	surface_set_target(_surWork);
 	camera_apply(_cam);
@@ -150,6 +148,7 @@ function ssao_draw(_surSsao, _surWork, _surGBuffer, _matProj, _clipFar)
 	shader_set_uniform_f(uSsaoBlurTexel, 1/_width, 0);
 	shader_set_uniform_f(uSsaoBlurClipFar, _clipFar);
 	texture_set_stage(uSsaoBlurTexDepth, surface_get_texture(_surGBuffer));
+	gpu_set_tex_filter_ext(uSsaoBlurTexDepth, false);
 	draw_surface(_surSsao, 0, 0);
 	shader_reset();
 	surface_reset_target();
@@ -161,6 +160,7 @@ function ssao_draw(_surSsao, _surWork, _surGBuffer, _matProj, _clipFar)
 	shader_set_uniform_f(uSsaoBlurTexel, 0, 1/_height);
 	shader_set_uniform_f(uSsaoBlurClipFar, _clipFar);
 	texture_set_stage(uSsaoBlurTexDepth, surface_get_texture(_surGBuffer));
+	gpu_set_tex_filter_ext(uSsaoBlurTexDepth, false);
 	draw_surface(_surWork, 0, 0);
 	shader_reset();
 	surface_reset_target();

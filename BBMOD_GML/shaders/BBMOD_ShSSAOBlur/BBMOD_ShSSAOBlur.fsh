@@ -35,47 +35,47 @@ float xDecodeDepth(vec3 c)
 
 void main()
 {
-	//gl_FragColor = vec4(0.0);
-	//float depth = xDecodeDepth(texture2D(u_texDepth, v_vTexCoord).rgb) * u_fClipFar;
-	//float weightSum = 0.0;
-	//for (float i = -16.0; i <= 16.0; i += 1.0)
-	//{
-	//	vec2 uv = v_vTexCoord + u_vTexel * i * 1.0;
-	//	float sampleDepth = xDecodeDepth(texture2D(u_texDepth, uv).rgb) * u_fClipFar;
-	//	float weight = 1.0 - clamp(abs(sampleDepth - depth) / 1.0, 0.0, 1.0);
-	//	gl_FragColor.rgb += texture2D(gm_BaseTexture, uv + u_vTexel * 0.5).rgb * weight;
-	//	weightSum += weight;
-	//}
-	//gl_FragColor.rgb /= weightSum;
-	//gl_FragColor.a = 1.0;
-
+	gl_FragColor = vec4(0.0);
 	float depth = xDecodeDepth(texture2D(u_texDepth, v_vTexCoord).rgb) * u_fClipFar;
-	float sampleDepth;
-	vec4 color = texture2D(gm_BaseTexture, v_vTexCoord) * 0.2270270270;
-	float weightSum = 0.2270270270;
-	float weight;
-	vec2 offset1 = u_vTexel * 1.3846153846;
-	vec2 offset2 = u_vTexel * 3.2307692308;
+	float weightSum = 0.0;
+	for (float i = -4.0; i <= 4.0; i += 1.0)
+	{
+		vec2 uv = v_vTexCoord + u_vTexel * i;
+		float sampleDepth = xDecodeDepth(texture2D(u_texDepth, uv).rgb) * u_fClipFar;
+		float weight = step(depth, sampleDepth);
+		gl_FragColor.rgb += texture2D(gm_BaseTexture, uv + u_vTexel * 0.5).rgb * weight;
+		weightSum += weight;
+	}
+	gl_FragColor.rgb /= weightSum;
+	gl_FragColor.a = 1.0;
 
-	sampleDepth = xDecodeDepth(texture2D(u_texDepth, v_vTexCoord + offset1).rgb) * u_fClipFar;
-	weight = 0.3162162162 * (1.0 - clamp(abs(sampleDepth - depth) / 1.0, 0.0, 1.0));
-	color += texture2D(gm_BaseTexture, v_vTexCoord + offset1) * weight;
-	weightSum += weight;
+	//float depth = xDecodeDepth(texture2D(u_texDepth, v_vTexCoord).rgb) * u_fClipFar;
+	//float sampleDepth;
+	//vec4 color = texture2D(gm_BaseTexture, v_vTexCoord) * 0.2270270270;
+	//float weightSum = 0.2270270270;
+	//float weight;
+	//vec2 offset1 = u_vTexel * 1.3846153846;
+	//vec2 offset2 = u_vTexel * 3.2307692308;
 
-	sampleDepth = xDecodeDepth(texture2D(u_texDepth, v_vTexCoord - offset1).rgb) * u_fClipFar;
-	weight = 0.3162162162 * (1.0 - clamp(abs(sampleDepth - depth) / 1.0, 0.0, 1.0));
-	color += texture2D(gm_BaseTexture, v_vTexCoord - offset1) * weight;
-	weightSum += weight;
+	//sampleDepth = xDecodeDepth(texture2D(u_texDepth, v_vTexCoord + offset1).rgb) * u_fClipFar;
+	//weight = 0.3162162162 * step(depth, sampleDepth);
+	//color += texture2D(gm_BaseTexture, v_vTexCoord + offset1) * weight;
+	//weightSum += weight;
 
-	sampleDepth = xDecodeDepth(texture2D(u_texDepth, v_vTexCoord + offset2).rgb) * u_fClipFar;
-	weight = 0.0702702703 * (1.0 - clamp(abs(sampleDepth - depth) / 1.0, 0.0, 1.0));
-	color += texture2D(gm_BaseTexture, v_vTexCoord + offset2) * weight;
-	weightSum += weight;
+	//sampleDepth = xDecodeDepth(texture2D(u_texDepth, v_vTexCoord - offset1).rgb) * u_fClipFar;
+	//weight = 0.3162162162 * step(depth, sampleDepth);
+	//color += texture2D(gm_BaseTexture, v_vTexCoord - offset1) * weight;
+	//weightSum += weight;
 
-	sampleDepth = xDecodeDepth(texture2D(u_texDepth, v_vTexCoord - offset2).rgb) * u_fClipFar;
-	weight = 0.0702702703 * (1.0 - clamp(abs(sampleDepth - depth) / 1.0, 0.0, 1.0));
-	color += texture2D(gm_BaseTexture, v_vTexCoord - offset2) * weight;
-	weightSum += weight;
+	//sampleDepth = xDecodeDepth(texture2D(u_texDepth, v_vTexCoord + offset2).rgb) * u_fClipFar;
+	//weight = 0.0702702703 * step(depth, sampleDepth);
+	//color += texture2D(gm_BaseTexture, v_vTexCoord + offset2) * weight;
+	//weightSum += weight;
 
-	gl_FragColor = color / weightSum;
+	//sampleDepth = xDecodeDepth(texture2D(u_texDepth, v_vTexCoord - offset2).rgb) * u_fClipFar;
+	//weight = 0.0702702703 * step(depth, sampleDepth);
+	//color += texture2D(gm_BaseTexture, v_vTexCoord - offset2) * weight;
+	//weightSum += weight;
+
+	//gl_FragColor = color / weightSum;
 }

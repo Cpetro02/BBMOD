@@ -124,7 +124,7 @@ void main()
 
 	for (int i = 0; i < X_SSAO_KERNEL_SIZE; ++i)
 	{
-		vec2 dir = (rot * u_vSampleKernel[i].xy) * 48.0 * (1.0 - depthLinear);
+		vec2 dir = (rot * u_vSampleKernel[i].xy) * 32.0;
 
 		vec2 sampleLeftUV = v_vTexCoord + dir * u_vTexel;
 		vec2 sampleRightUV = v_vTexCoord - dir * u_vTexel;
@@ -140,7 +140,7 @@ void main()
 
 		float angle = acos(dot(diffLeft, diffRight) / (length(diffLeft) * length(diffRight))) / X_PI;
 
-		if (-diffLeft.z - diffRight.z < 0.4)
+		if (-diffLeft.z - diffRight.z < 0.03)
 		{
 			angle = 1.0;
 		}
@@ -165,7 +165,7 @@ void main()
 
 	occlusion /= float(X_SSAO_KERNEL_SIZE);
 	occlusion = clamp(1.0 - occlusion, 0.0, 1.0);
-	occlusion = pow(occlusion, 4.0/*u_fPower*/);
+	occlusion = pow(occlusion, 2.0/*u_fPower*/);
 
 	// Output
 	gl_FragColor.rgb = vec3(occlusion);

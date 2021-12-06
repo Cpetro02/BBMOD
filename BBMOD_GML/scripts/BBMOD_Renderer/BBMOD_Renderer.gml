@@ -60,9 +60,9 @@ function BBMOD_Renderer()
 	RenderScale = 1.0;
 
 	/// @var {bool} Enables rendering into a G-buffer in the deferred pass.
-	/// Defaults to `true`.
+	/// Defaults to `false`.
 	/// @see BBMOD_ERenderPass.Deferred
-	EnableGBuffer = true;
+	EnableGBuffer = false;
 
 	/// @var {real} Resolution multiplier for the G-buffer surface. Defaults
 	/// to 1.
@@ -73,9 +73,9 @@ function BBMOD_Renderer()
 	SurGBuffer = noone;
 
 	/// @var {bool} Enables screen-space ambient occlusion. This requires
-	/// the G-buffer. Defaults to `true`.
+	/// the G-buffer. Defaults to `false`.
 	/// @see BBMOD_Renderer.EnableGBuffer
-	EnableSSAO = true;
+	EnableSSAO = false;
 
 	/// @var {real} Resolution multiplier for SSAO surface. Defaults to 1.
 	SSAOScale = 1.0;
@@ -95,10 +95,10 @@ function BBMOD_Renderer()
 	DirectionalLight = undefined;
 
 	/// @var {bool} Enables rendering into a shadowmap in the shadows render pass.
-	/// Defauls to `true`.
+	/// Defauls to `false`.
 	/// @see BBMOD_Renderer.ShadowmapArea
 	/// @see BBMOD_Renderer.ShadowmapResolution
-	EnableShadows = true;
+	EnableShadows = false;
 
 	/// @var {surface} The surface used for rendering the scene's depth from the
 	/// directional light's view.
@@ -116,14 +116,14 @@ function BBMOD_Renderer()
 	/// scaled by this value. Defaults to 1. Increasing the value can remove some
 	/// artifacts but using too high value could make the objects appear flying
 	/// above the ground.
-	ShadowmapNormalOffset = 1.0;
+	ShadowmapNormalOffset = 1;
 
 	/// @var {BBMOD_PointLight[]} An array of point lights.
 	/// @readonly
 	PointLights = [];
 
-	/// @var {bool} Enables post-processing effects. Defaults to `true`.
-	EnablePostProcessing = true;
+	/// @var {bool} Enables post-processing effects. Defaults to `false`.
+	EnablePostProcessing = false;
 
 	/// @var {ptr} The lookup table texture used for color grading.
 	/// @note Post-processing must be enabled for this to have any effect!
@@ -236,7 +236,8 @@ function BBMOD_Renderer()
 		{
 			return matrix_build_identity();
 		}
-		var _directionalLightPosition = _directionalLight.Position;
+		// TODO: Get camera position
+		var _directionalLightPosition = FPS_OPlayer.camera.Position; //_directionalLight.Position;
 		var _directionalLightDirection = _directionalLight.Direction;
 		return matrix_build_lookat(
 			_directionalLightPosition.X,
@@ -333,7 +334,7 @@ function BBMOD_Renderer()
 		var _world = matrix_get(matrix_world);
 		var _view = matrix_get(matrix_view);
 		var _projection = matrix_get(matrix_projection);
-		var _clipFar = OPlayer.camera.ZFar; // TODO: Get cam clip far!
+		var _clipFar = FPS_OPlayer.camera.ZFar; // TODO: Get cam clip far!
 
 		var i = 0;
 		repeat (array_length(Renderables))
@@ -518,7 +519,7 @@ function BBMOD_Renderer()
 			{
 				shader_reset();
 			}
-			gpu_pop_state()
+			gpu_pop_state();
 		}
 		return self;
 	};

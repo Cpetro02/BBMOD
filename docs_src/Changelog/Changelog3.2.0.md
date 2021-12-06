@@ -20,6 +20,9 @@
 * Function `bbmod_get_materials` now accepts an optional render pass argument, using which you can retrieve only materials that have a shader for a specific render pass.
 * Added new utility function `bbmod_get_calling_function_name` using which you can retrieve the name of the function that calls it.
 
+### Importer module:
+* Fixed import of OBJ model that included empty lines.
+
 ### Rendering module:
 * Added new module - Rendering - which encapsulates modules related to rendering.
 
