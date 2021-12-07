@@ -38,10 +38,11 @@ _objImporter.destroy();
 // Create a renderer
 renderer = new BBMOD_Renderer();
 renderer.UseAppSurface = true;
-renderer.RenderScale = 2.0;
+renderer.RenderScale = 1.0;
 renderer.EnableShadows = true;
 renderer.ShadowmapArea = 512;
-renderer.ShadowmapResolution = 2048;
+renderer.ShadowmapResolution = 1024;
+renderer.ShadowmapNormalOffset = 1.5;
 renderer.EnableGBuffer = true;
 renderer.EnableSSAO = true;
 renderer.EnablePostProcessing = true;

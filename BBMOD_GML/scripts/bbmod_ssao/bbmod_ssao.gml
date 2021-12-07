@@ -139,7 +139,7 @@ function ssao_draw(_surSsao, _surWork, _surGBuffer, _matProj, _clipFar)
 	shader_reset();
 	surface_reset_target();
 
-	gpu_set_tex_filter(false);
+	gpu_set_tex_filter(true);
 
 	surface_set_target(_surWork);
 	camera_apply(_cam);
