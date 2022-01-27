@@ -2,11 +2,11 @@
   "isDnD": false,
   "isCompatibility": false,
   "parent": {
-    "name": "Scripts",
-    "path": "folders/Demo/Scripts.yy",
+    "name": "Math",
+    "path": "folders/BBMOD/Core/Math.yy",
   },
   "resourceVersion": "1.0",
-  "name": "WorldToScreen",
+  "name": "BBMOD_Matrix",
   "tags": [],
   "resourceType": "GMScript",
 }

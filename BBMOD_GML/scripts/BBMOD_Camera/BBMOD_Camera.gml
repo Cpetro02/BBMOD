@@ -17,7 +17,7 @@
 /// ```
 function BBMOD_Camera() constructor
 {
-	/// @var {camera} An underlying GM camera.
+	/// @var {camera} An underlying GameMaker camera.
 	/// @readonly
 	Raw = camera_create();
 
@@ -357,6 +357,32 @@ function BBMOD_Camera() constructor
 			_view[6],
 			_view[10],
 		);
+	};
+
+	/// @func world_to_screen(_pos[, _screenWidth[, _screenHeight]])
+	/// @desc Computes screen-space position of a point in world-space.
+	/// @param {BBMOD_Vec2} _pos The world-space position.
+	/// @param {real/undefined} _screenWidth The width of the screen. If `undefined`,
+	/// it is retrieved using `window_get_width`.
+	/// @param {real/undefined} _screenHeight The height of the screen. If `undefined`,
+	/// it is retrieved using `window_get_height`.
+	/// @return {BBMOD_Vec4/undefined} The screen-space position or `undefined` if
+	/// the point is outside of the screen.
+	static world_to_screen = function (_pos, _screenWidth=undefined, _screenHeight=undefined) {
+		gml_pragma("forceinline");
+		_screenWidth ??= window_get_width();
+		_screenHeight ??= window_get_height();
+		// TODO: Cache view * projection matrix!
+		var _viewProjMat = matrix_multiply(get_view_mat(), get_proj_mat());
+		var _screenPos = new BBMOD_Vec4(_pos.X, _pos.Y, _pos.Z, 1.0).Transform(_viewProjMat);
+		if (_screenPos.Z < 0.0)
+		{
+			return undefined;
+		}
+		_screenPos = _screenPos.Scale(1.0 / _screenPos.W);
+		_screenPos.X = (_screenPos.X * 0.5 + 0.5) * _screenWidth;
+		_screenPos.Y = (1.0 - (_screenPos.Y * 0.5 + 0.5)) * _screenHeight;
+		return _screenPos;
 	};
 
 	/// @func apply()

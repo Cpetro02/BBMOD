@@ -214,8 +214,9 @@ function BBMOD_Color(_red=255.0, _green=255.0, _blue=255.0, _alpha=1.0) construc
 	};
 
 	/// @func ToConstant()
-	/// @desc Encodes the color into a single value, compatible with the GM
-	/// color constants. Ignores the alpha channel.
+	/// @desc Encodes the color into a single value, compatible with the
+	/// GameMaker color constants like `c_white` etc. Ignores the alpha
+	/// channel.
 	/// @return {uint} The color as a single value.
 	/// @example
 	/// ```gml
